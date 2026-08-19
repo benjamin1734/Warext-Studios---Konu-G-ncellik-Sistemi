@@ -1,9 +1,0 @@
-{
-    "template": "thread_list_macros",
-    "description": "Konu listesine güncellik durum rozetini ekler",
-    "execution_order": 20,
-    "enabled": true,
-    "action": "str_replace",
-    "find": "<xf:if is=\"$thread.prefix_id\">",
-    "replace": "<xf:if is=\"$thread.wrxtFreshnessIsEnabled()\">\n\t<xf:set var=\"$wrxtListStatus\" value=\"{$thread.wrxtFreshnessGetDisplayStatus()}\" />\n\t<xf:if is=\"$wrxtListStatus == 'current'\">\n\t\t<span class=\"label label--green\">Güncel</span>\n\t<xf:elseif is=\"$wrxtListStatus == 'likely_current'\" />\n\t\t<span class=\"label label--olive\">Muhtemelen güncel</span>\n\t<xf:elseif is=\"$wrxtListStatus == 'mixed'\" />\n\t\t<span class=\"label label--yellow\">Kararsız</span>\n\t<xf:elseif is=\"$wrxtListStatus == 'questionable'\" />\n\t\t<span class=\"label label--orange\">Güncelliği şüpheli</span>\n\t<xf:elseif is=\"$wrxtListStatus == 'not_working'\" />\n\t\t<span class=\"label label--red\">Artık çalışmıyor</span>\n\t<xf:elseif is=\"$wrxtListStatus == 'revalidating'\" />\n\t\t<span class=\"label label--blue\">Yeniden doğrulanıyor</span>\n\t<xf:elseif is=\"$thread.wrxtFreshnessIsEligible()\" />\n\t\t<span class=\"label\">Doğrulanmamış</span>\n\t</xf:if>\n</xf:if>\n$0"
-}

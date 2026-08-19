@@ -27,6 +27,8 @@ class ThreadState extends Entity
             'moderator_status' => ['type' => self::STR, 'maxLength' => 32, 'default' => ''],
             'moderator_user_id' => ['type' => self::UINT, 'default' => 0],
             'moderator_date' => ['type' => self::UINT, 'default' => 0],
+            'reference_date' => ['type' => self::UINT, 'default' => 0],
+            'owner_claim_date' => ['type' => self::UINT, 'default' => 0],
             'replacement_thread_id' => ['type' => self::UINT, 'default' => 0],
             'replacement_user_id' => ['type' => self::UINT, 'default' => 0],
             'replacement_date' => ['type' => self::UINT, 'default' => 0]

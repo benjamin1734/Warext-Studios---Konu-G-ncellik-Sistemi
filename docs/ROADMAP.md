@@ -1,45 +1,23 @@
 # Yol Haritası
 
-## Faz 1
-- [x] Eklenti iskeleti
-- [x] Veritabanı şeması
-- [x] Entity katmanı
-- [x] Repository katmanı
-- [x] Service katmanı
-- [x] Oy ağırlıklandırma
-- [x] Durum hesaplama
-- [x] Yeniden hesaplama job'u
+## 1.1.0 Stable
 
-## Faz 2
-- [x] Konu sayfası doğrulama paneli
-- [x] Oy endpoint'i
-- [x] XenForo oy izni
-- [x] Forum bazlı aktivasyon
-- [x] Forum düzenleme ekranından aktivasyon
-- [x] Forum bazlı bekleme süresi
-- [x] Olumsuz oy nedeni
-- [x] Sürüm bazlı ayrı sonuç hesaplama
-- [x] Forum bazlı izin verilen sürüm listesi
+Tamamlandı:
 
-## Faz 3
-- [x] Konu paneli durum rozetleri
-- [x] Konu listesi durum rozetleri
-- [x] Liste durum filtresi backend'i
-- [x] Moderatör doğrulaması
-- [x] Yeniden doğrulama döngüsü
-- [x] Otomatik yeniden hesaplama cron'u
-- [x] Bildirimler
-- [x] Oy değiştirme iznini ayrılaştırma
-- [x] Kendi konusuna oy iznini ayrılaştırma
-- [x] Liste filtre arayüzü
+- Anlamlı güncelleme tabanlı doğrulama döngüsü
+- Döngü bazlı oy geçerliliği
+- Yapılandırılabilir durum eşikleri
+- Moderatör override uyumlu filtreler
+- Olumsuz neden ve alternatif çözüm analitiği
+- Konu sahibinin bağlayıcı olmayan geçerlilik bildirimi
+- State kaydı olmayan eski konular için arama desteği
+- Büyük forumlar için toplu preload, parçalı arama ve daraltılmış rebuild
+- 1.0.0 → 1.1.0 otomatik şema yükseltmesi
+- Kurulabilir `_data` + `hashes.json` release zinciri
 
-## Faz 4
-- [x] ACP istatistikleri
-- [x] Güncel çözümler arama entegrasyonu
-- [x] Güncel çözüm yönlendirmesi
-- [x] Orphan kayıt temizliği
-- [x] Eşzamanlı oy güvenliği
-- [x] `_data` XML üretimi
-- [x] Otomatik performans ve güvenlik kontrolleri
-- [ ] Lisanslı XenForo 2.3 canlı kurulum kabul testi
-- [x] Nihai release ZIP
+## Sonraki olası geliştirmeler
+
+- Forum bazlı özel olumsuz neden setleri
+- Sürüm gruplarının ACP'de ayrı yönetim varlığına taşınması
+- Sağlık verilerinin zaman serisi olarak raporlanması
+- Gelişmiş moderasyon kuyruğu ve toplu doğrulama araçları

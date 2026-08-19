@@ -3,6 +3,7 @@
 namespace WarextStudios\ThreadFreshness\XF\Entity;
 
 use WarextStudios\ThreadFreshness\Entity\ThreadState;
+use WarextStudios\ThreadFreshness\Entity\Vote;
 use WarextStudios\ThreadFreshness\Util\Eligibility;
 use WarextStudios\ThreadFreshness\Util\ModeratorStatus;
 use XF\Mvc\Entity\Structure;
@@ -10,7 +11,12 @@ use XF\Mvc\Entity\Structure;
 class Thread extends XFCP_Thread
 {
     protected ?array $wrxtFreshnessVersionSummary = null;
-    protected ?int $wrxtFreshnessVisitorVote = null;
+    protected ?array $wrxtFreshnessFailureReasonSummary = null;
+    protected ?array $wrxtFreshnessAlternativeSuggestions = null;
+    protected ?int $wrxtFreshnessReferenceDate = null;
+    protected bool $wrxtFreshnessVisitorVoteLoaded = false;
+    protected bool $wrxtFreshnessListDataPreloaded = false;
+    protected ?Vote $wrxtFreshnessVisitorVoteEntity = null;
 
     public static function getStructure(Structure $structure): Structure
     {
@@ -26,7 +32,7 @@ class Thread extends XFCP_Thread
         return $structure;
     }
 
-    public function wrxtFreshnessIsEnabled(): bool
+    public function isWrxtFreshnessEnabled(): bool
     {
         $general = (array)(\XF::options()->wrxtFreshnessGeneral ?? []);
         if (empty($general['enabled']) || !$this->Forum)
@@ -37,9 +43,41 @@ class Thread extends XFCP_Thread
         return (bool)$this->Forum->wrxt_freshness_enabled;
     }
 
-    public function wrxtFreshnessIsEligible(): bool
+    public function setWrxtFreshnessReferenceDate(int $date): void
     {
-        if (!$this->wrxtFreshnessIsEnabled())
+        $this->wrxtFreshnessReferenceDate = max(0, $date);
+    }
+
+    public function setWrxtFreshnessListDataPreloaded(bool $preloaded = true): void
+    {
+        $this->wrxtFreshnessListDataPreloaded = $preloaded;
+    }
+
+    public function hasWrxtFreshnessListData(): bool
+    {
+        return $this->wrxtFreshnessListDataPreloaded;
+    }
+
+    public function getWrxtFreshnessReferenceDate(): int
+    {
+        if ($this->wrxtFreshnessReferenceDate !== null)
+        {
+            return $this->wrxtFreshnessReferenceDate;
+        }
+
+        if (!$this->Forum || $this->Forum->getWrxtFreshnessAgeMode() === 'last_post')
+        {
+            return $this->wrxtFreshnessReferenceDate = (int)$this->last_post_date;
+        }
+
+        return $this->wrxtFreshnessReferenceDate = (int)$this->repository(
+            'WarextStudios\ThreadFreshness:ThreadFreshness'
+        )->getMeaningfulDateForThread($this);
+    }
+
+    public function isWrxtFreshnessEligible(): bool
+    {
+        if (!$this->isWrxtFreshnessEnabled())
         {
             return false;
         }
@@ -47,23 +85,26 @@ class Thread extends XFCP_Thread
         return Eligibility::isThreadEligible(
             true,
             (int)$this->node_id,
-            (int)$this->last_post_date,
+            $this->getWrxtFreshnessReferenceDate(),
             [(int)$this->node_id],
             (int)$this->Forum->wrxt_freshness_days,
             \XF::$time
         );
     }
 
-    public function wrxtFreshnessCanVote(): bool
+    public function canWrxtFreshnessVote(): bool
     {
-        if (!$this->wrxtFreshnessIsEligible())
+        if (!$this->isWrxtFreshnessEligible())
         {
             return false;
         }
 
         $visitor = \XF::visitor();
-        $allowOwnThread = (int)$visitor->user_id !== (int)$this->user_id
-            || $visitor->hasPermission('wrxtFreshness', 'voteOwn');
+        $ownThread = (int)$visitor->user_id > 0 && (int)$visitor->user_id === (int)$this->user_id;
+        $allowOwnThread = !$ownThread || (
+            (bool)(\XF::options()->wrxtFreshnessAllowOwnThread ?? false)
+            && $visitor->hasPermission('wrxtFreshness', 'voteOwn')
+        );
 
         if (!Eligibility::canVisitorVote(
             (int)$visitor->user_id,
@@ -80,21 +121,41 @@ class Thread extends XFCP_Thread
             return false;
         }
 
-        return $this->wrxtFreshnessGetVisitorVote() === 0
-            || $visitor->hasPermission('wrxtFreshness', 'changeVote');
+        $vote = $this->getWrxtFreshnessVisitorVoteEntity();
+        if (!$vote)
+        {
+            return true;
+        }
+
+        $voteDate = max((int)$vote->vote_date, (int)$vote->updated_date);
+        if ($voteDate < $this->getWrxtFreshnessReferenceDate())
+        {
+            return true;
+        }
+
+        return $visitor->hasPermission('wrxtFreshness', 'changeVote');
     }
 
-    public function wrxtFreshnessCanModerate(): bool
+    public function canWrxtFreshnessModerate(): bool
     {
-        return $this->wrxtFreshnessIsEnabled()
+        return $this->isWrxtFreshnessEligible()
             && (int)\XF::visitor()->user_id > 0
             && \XF::visitor()->hasPermission('wrxtFreshness', 'moderate');
     }
 
-    public function wrxtFreshnessCanManageReplacement(): bool
+    public function canWrxtFreshnessOwnerClaim(): bool
     {
         $visitor = \XF::visitor();
-        return $this->wrxtFreshnessIsEnabled()
+
+        return $this->isWrxtFreshnessEligible()
+            && (int)$visitor->user_id > 0
+            && (int)$visitor->user_id === (int)$this->user_id;
+    }
+
+    public function canWrxtFreshnessManageReplacement(): bool
+    {
+        $visitor = \XF::visitor();
+        return $this->isWrxtFreshnessEligible()
             && (int)$visitor->user_id > 0
             && (
                 (int)$visitor->user_id === (int)$this->user_id
@@ -102,50 +163,108 @@ class Thread extends XFCP_Thread
             );
     }
 
-    public function wrxtFreshnessGetState(): ?ThreadState
+    public function getWrxtFreshnessState(): ?ThreadState
     {
         return $this->WrxtFreshnessState;
     }
 
-    public function wrxtFreshnessGetDisplayStatus(): string
+    public function isWrxtFreshnessStateCurrent(): bool
     {
-        $state = $this->wrxtFreshnessGetState();
+        $state = $this->getWrxtFreshnessState();
         if (!$state)
+        {
+            return false;
+        }
+
+        $referenceDate = $this->getWrxtFreshnessReferenceDate();
+        if ($referenceDate <= 0)
+        {
+            return false;
+        }
+
+        return (int)$state->reference_date === $referenceDate
+            && (int)$state->last_calculated_date >= $referenceDate;
+    }
+
+    public function getWrxtFreshnessDisplayStatus(): string
+    {
+        if (!$this->isWrxtFreshnessStateCurrent())
         {
             return 'unverified';
         }
 
+        $state = $this->getWrxtFreshnessState();
         return ModeratorStatus::effective((string)$state->status, (string)$state->moderator_status);
     }
 
-    public function wrxtFreshnessGetConfiguredVersions(): array
+    public function getWrxtFreshnessConfiguredVersions(): array
     {
-        return $this->Forum ? $this->Forum->wrxtFreshnessGetVersions() : [];
+        return $this->Forum ? $this->Forum->getWrxtFreshnessVersions() : [];
     }
 
-    public function wrxtFreshnessGetVersionSummary(): array
+    public function getWrxtFreshnessVersionSummary(): array
     {
         if ($this->wrxtFreshnessVersionSummary === null)
         {
             $this->wrxtFreshnessVersionSummary = $this->repository(
                 'WarextStudios\ThreadFreshness:ThreadFreshness'
-            )->getVersionSummaryForThread((int)$this->thread_id);
+            )->getVersionSummaryForThread(
+                (int)$this->thread_id,
+                8,
+                $this->getWrxtFreshnessReferenceDate()
+            );
         }
 
         return $this->wrxtFreshnessVersionSummary;
     }
 
-    public function wrxtFreshnessGetVisitorVote(): int
+    public function getWrxtFreshnessFailureReasonSummary(): array
     {
-        if ($this->wrxtFreshnessVisitorVote !== null)
+        if ($this->wrxtFreshnessFailureReasonSummary === null)
         {
-            return $this->wrxtFreshnessVisitorVote;
+            $this->wrxtFreshnessFailureReasonSummary = $this->repository(
+                'WarextStudios\ThreadFreshness:ThreadFreshness'
+            )->getFailureReasonSummaryForThread(
+                (int)$this->thread_id,
+                $this->getWrxtFreshnessReferenceDate()
+            );
         }
 
+        return $this->wrxtFreshnessFailureReasonSummary;
+    }
+
+    public function getWrxtFreshnessAlternativeSuggestions(): array
+    {
+        if (!$this->canWrxtFreshnessManageReplacement())
+        {
+            return [];
+        }
+
+        if ($this->wrxtFreshnessAlternativeSuggestions === null)
+        {
+            $this->wrxtFreshnessAlternativeSuggestions = $this->repository(
+                'WarextStudios\ThreadFreshness:ThreadFreshness'
+            )->getAlternativeSuggestionsForThread(
+                (int)$this->thread_id,
+                $this->getWrxtFreshnessReferenceDate()
+            );
+        }
+
+        return $this->wrxtFreshnessAlternativeSuggestions;
+    }
+
+    public function getWrxtFreshnessVisitorVoteEntity(): ?Vote
+    {
+        if ($this->wrxtFreshnessVisitorVoteLoaded)
+        {
+            return $this->wrxtFreshnessVisitorVoteEntity;
+        }
+
+        $this->wrxtFreshnessVisitorVoteLoaded = true;
         $visitorId = (int)\XF::visitor()->user_id;
         if ($visitorId <= 0)
         {
-            return $this->wrxtFreshnessVisitorVote = 0;
+            return null;
         }
 
         $vote = \XF::finder('WarextStudios\ThreadFreshness:Vote')
@@ -153,19 +272,59 @@ class Thread extends XFCP_Thread
             ->where('user_id', $visitorId)
             ->fetchOne();
 
-        return $this->wrxtFreshnessVisitorVote = $vote ? (int)$vote->vote : 0;
+        if ($vote)
+        {
+            $voteDate = max((int)$vote->vote_date, (int)$vote->updated_date);
+            if ($voteDate < $this->getWrxtFreshnessReferenceDate())
+            {
+                $vote = null;
+            }
+        }
+
+        return $this->wrxtFreshnessVisitorVoteEntity = $vote ?: null;
     }
 
-    public function wrxtFreshnessGetReplacementThread(): ?\XF\Entity\Thread
+    public function getWrxtFreshnessVisitorVote(): int
     {
-        $state = $this->wrxtFreshnessGetState();
+        $vote = $this->getWrxtFreshnessVisitorVoteEntity();
+        if (!$vote)
+        {
+            return 0;
+        }
+
+        $voteDate = max((int)$vote->vote_date, (int)$vote->updated_date);
+        return $voteDate >= $this->getWrxtFreshnessReferenceDate() ? (int)$vote->vote : 0;
+    }
+
+    public function hasWrxtFreshnessOwnerClaim(): bool
+    {
+        $state = $this->getWrxtFreshnessState();
+        return $state
+            && (int)$state->owner_claim_date >= $this->getWrxtFreshnessReferenceDate()
+            && (int)$state->owner_claim_date > 0;
+    }
+
+    public function getWrxtFreshnessReplacementThread(): ?\XF\Entity\Thread
+    {
+        if (!$this->isWrxtFreshnessEligible())
+        {
+            return null;
+        }
+
+        $state = $this->getWrxtFreshnessState();
         if (!$state || !$state->replacement_thread_id || !$state->ReplacementThread)
         {
             return null;
         }
 
         $replacement = $state->ReplacementThread;
-        if (!$replacement->canView())
+        if (
+            !$replacement->canView()
+            || $replacement->discussion_state !== 'visible'
+            || $replacement->discussion_type === 'redirect'
+            || (int)$replacement->thread_id === (int)$this->thread_id
+            || (int)$replacement->post_date < (int)$this->post_date
+        )
         {
             return null;
         }

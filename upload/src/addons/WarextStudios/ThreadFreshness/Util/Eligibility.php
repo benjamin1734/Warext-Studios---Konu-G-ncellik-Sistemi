@@ -27,13 +27,13 @@ class Eligibility
     public static function isThreadEligible(
         bool $enabled,
         int $nodeId,
-        int $lastPostDate,
+        int $referenceDate,
         array $forumIds,
         int $days,
         int $now
     ): bool
     {
-        if (!$enabled || $nodeId <= 0 || $lastPostDate <= 0)
+        if (!$enabled || $nodeId <= 0 || $referenceDate <= 0)
         {
             return false;
         }
@@ -45,7 +45,7 @@ class Eligibility
 
         $days = max(1, $days);
 
-        return $lastPostDate <= $now - ($days * 86400);
+        return $referenceDate <= $now - ($days * 86400);
     }
 
     public static function canVisitorVote(

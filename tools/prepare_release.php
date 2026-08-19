@@ -4,7 +4,7 @@ $root = dirname(__DIR__);
 $source = $root . '/upload';
 $build = $root . '/build';
 $stage = $build . '/release';
-$zipName = 'Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip';
+$zipName = 'Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip';
 
 function wrxtRemove(string $path): void
 {
@@ -12,24 +12,19 @@ function wrxtRemove(string $path): void
     {
         return;
     }
-
     if (is_file($path) || is_link($path))
     {
         unlink($path);
         return;
     }
-
-    $items = scandir($path) ?: [];
-    foreach ($items as $item)
+    foreach (scandir($path) ?: [] as $item)
     {
         if ($item === '.' || $item === '..')
         {
             continue;
         }
-
         wrxtRemove($path . '/' . $item);
     }
-
     rmdir($path);
 }
 
@@ -41,18 +36,14 @@ function wrxtCopy(string $source, string $target): void
         {
             mkdir($target, 0777, true);
         }
-
-        $items = scandir($source) ?: [];
-        foreach ($items as $item)
+        foreach (scandir($source) ?: [] as $item)
         {
             if ($item === '.' || $item === '..' || $item === '_output' || $item === '_releases')
             {
                 continue;
             }
-
             wrxtCopy($source . '/' . $item, $target . '/' . $item);
         }
-
         return;
     }
 
@@ -61,7 +52,6 @@ function wrxtCopy(string $source, string $target): void
     {
         mkdir($parent, 0777, true);
     }
-
     copy($source, $target);
 }
 
@@ -71,7 +61,6 @@ if (!is_dir($build))
     mkdir($build, 0777, true);
 }
 mkdir($stage, 0777, true);
-
 wrxtCopy($source, $stage . '/upload');
 
 foreach (['README.md', 'CHANGELOG.md'] as $file)
@@ -86,38 +75,29 @@ $hashes = [];
 $iterator = new RecursiveIteratorIterator(
     new RecursiveDirectoryIterator($stage . '/upload', FilesystemIterator::SKIP_DOTS)
 );
-
 foreach ($iterator as $file)
 {
     if (!$file->isFile())
     {
         continue;
     }
-
     $relative = substr($file->getPathname(), strlen($stage . '/upload/'));
     $relative = str_replace(DIRECTORY_SEPARATOR, '/', $relative);
-
     if (str_ends_with($relative, '/hashes.json'))
     {
         continue;
     }
-
     $hashes[$relative] = hash_file('sha256', $file->getPathname());
 }
-
 ksort($hashes);
 $hashPath = $stage . '/upload/src/addons/WarextStudios/ThreadFreshness/hashes.json';
-file_put_contents(
-    $hashPath,
-    json_encode($hashes, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n"
-);
+file_put_contents($hashPath, json_encode($hashes, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES) . "\n");
 
 if (is_dir($stage . '/upload/src/addons/WarextStudios/ThreadFreshness/_output'))
 {
     fwrite(STDERR, "Release paketinde _output bulundu.\n");
     exit(1);
 }
-
 if (!is_dir($stage . '/upload/src/addons/WarextStudios/ThreadFreshness/_data'))
 {
     fwrite(STDERR, "Release paketinde _data bulunamadı.\n");

@@ -30,7 +30,7 @@ class Replacement extends AbstractService
         {
             throw new \LogicException('Thread and user must exist');
         }
-        if (!$this->thread->wrxtFreshnessCanManageReplacement())
+        if (!$this->thread->canWrxtFreshnessManageReplacement())
         {
             throw new \LogicException('Permission denied');
         }
@@ -47,7 +47,6 @@ class Replacement extends AbstractService
                 $state->replacement_user_id = 0;
                 $state->replacement_date = 0;
                 $state->save();
-
                 return $state;
             }
 
@@ -57,7 +56,13 @@ class Replacement extends AbstractService
             }
 
             $replacement = $this->app->em()->find('XF:Thread', $this->replacementThreadId);
-            if (!$replacement || $replacement->discussion_state !== 'visible' || !$replacement->canView())
+            if (
+                !$replacement
+                || $replacement->discussion_state !== 'visible'
+                || $replacement->discussion_type === 'redirect'
+                || !$replacement->canView()
+                || (int)$replacement->post_date < (int)$this->thread->post_date
+            )
             {
                 throw new \InvalidArgumentException('Replacement thread is not available');
             }

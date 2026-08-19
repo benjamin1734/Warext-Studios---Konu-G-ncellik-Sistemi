@@ -8,7 +8,7 @@ class Freshness extends AbstractController
 {
     public function actionIndex()
     {
-        $query = trim($this->filter('q', 'str'));
+        $query = mb_substr(trim($this->filter('q', 'str')), 0, 100);
         $status = trim($this->filter('status', 'str'));
 
         $allowed = [

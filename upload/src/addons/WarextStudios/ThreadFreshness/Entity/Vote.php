@@ -9,6 +9,8 @@ class Vote extends Entity
 {
     protected function _preSave(): void
     {
+        parent::_preSave();
+
         if ($this->isInsert())
         {
             $this->vote_date = \XF::$time;
@@ -33,7 +35,8 @@ class Vote extends Entity
             'version' => ['type' => self::STR, 'maxLength' => 100, 'default' => ''],
             'message' => ['type' => self::STR, 'maxLength' => 500, 'default' => ''],
             'vote_date' => ['type' => self::UINT, 'default' => 0],
-            'updated_date' => ['type' => self::UINT, 'default' => 0]
+            'updated_date' => ['type' => self::UINT, 'default' => 0],
+            'alternative_thread_id' => ['type' => self::UINT, 'default' => 0]
         ];
         $structure->relations = [
             'Thread' => [
@@ -46,6 +49,12 @@ class Vote extends Entity
                 'entity' => 'XF:User',
                 'type' => self::TO_ONE,
                 'conditions' => 'user_id',
+                'primary' => true
+            ],
+            'AlternativeThread' => [
+                'entity' => 'XF:Thread',
+                'type' => self::TO_ONE,
+                'conditions' => [['thread_id', '=', '$alternative_thread_id']],
                 'primary' => true
             ]
         ];

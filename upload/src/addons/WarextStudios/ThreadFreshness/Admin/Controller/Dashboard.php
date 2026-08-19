@@ -21,7 +21,8 @@ class Dashboard extends AbstractController
             'wrxt_thread_freshness_dashboard',
             [
                 'stats' => $repository->getDashboardStats(),
-                'criticalThreads' => $repository->getCriticalThreads(50)
+                'criticalThreads' => $repository->getCriticalThreads(50),
+                'negativeFeedback' => $repository->getRecentNegativeFeedback(30)
             ]
         );
     }

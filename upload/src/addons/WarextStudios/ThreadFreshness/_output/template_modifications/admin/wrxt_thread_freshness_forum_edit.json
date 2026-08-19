@@ -1,9 +1,0 @@
-{
-    "template": "forum_edit",
-    "description": "Forum bazlı konu güncellik ayarlarını ekler",
-    "execution_order": 10,
-    "enabled": true,
-    "action": "str_replace",
-    "find": "<xf:option name=\"allow_posting\"",
-    "replace": "<xf:option name=\"wrxt_freshness_enabled\" selected=\"$forum.wrxt_freshness_enabled\"\n\tlabel=\"Konu güncellik doğrulamasını etkinleştir\"\n\thint=\"Bu forumdaki eski konularda topluluk güncellik doğrulaması açılır.\">\n\t<div class=\"formRow-explain\">Doğrulama panelinin görünmesi için geçmesi gereken gün sayısı</div>\n\t<xf:numberbox name=\"wrxt_freshness_days\" value=\"{$forum.wrxt_freshness_days}\" min=\"1\" max=\"3650\" step=\"1\" />\n\t<div class=\"formRow-explain\">İzin verilen sürümler, her satıra bir değer. Boş bırakılırsa serbest sürüm girişi kullanılır.</div>\n\t<xf:textarea name=\"wrxt_freshness_versions\" value=\"{$forum.wrxt_freshness_versions}\" autosize=\"true\" maxlength=\"5000\" />\n</xf:option>\n\n$0"
-}

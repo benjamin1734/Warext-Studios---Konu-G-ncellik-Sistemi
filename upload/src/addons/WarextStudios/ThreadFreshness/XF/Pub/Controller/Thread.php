@@ -10,10 +10,9 @@ class Thread extends XFCP_Thread
     public function actionFreshnessVote(ParameterBag $params)
     {
         $this->assertPostOnly();
-
         $thread = $this->assertViewableThread($params->thread_id);
 
-        if (!$thread->wrxtFreshnessCanVote())
+        if (!$thread->canWrxtFreshnessVote())
         {
             return $this->noPermission();
         }
@@ -22,7 +21,8 @@ class Thread extends XFCP_Thread
             'vote' => 'int',
             'reason' => 'str',
             'version' => 'str',
-            'message' => 'str'
+            'message' => 'str',
+            'alternative_thread_id' => 'uint'
         ]);
 
         if (!in_array($input['vote'], [-1, 1], true))
@@ -33,9 +33,10 @@ class Thread extends XFCP_Thread
         if ($input['vote'] === 1)
         {
             $input['reason'] = '';
+            $input['alternative_thread_id'] = 0;
         }
 
-        $configuredVersions = $thread->wrxtFreshnessGetConfiguredVersions();
+        $configuredVersions = $thread->getWrxtFreshnessConfiguredVersions();
         if ($configuredVersions && !in_array(trim($input['version']), $configuredVersions, true))
         {
             return $this->error('Geçerli bir sürüm seçmelisiniz.');
@@ -47,23 +48,29 @@ class Thread extends XFCP_Thread
             \XF::visitor()
         );
 
-        $service->setVote($input['vote']);
-        $service->setReason($input['reason']);
-        $service->setVersion($input['version']);
-        $service->setMessage($input['message']);
-        $service->save();
+        try
+        {
+            $service->setVote($input['vote']);
+            $service->setReason($input['reason']);
+            $service->setVersion($input['version']);
+            $service->setMessage($input['message']);
+            $service->setAlternativeThreadId($input['alternative_thread_id']);
+            $service->save();
+        }
+        catch (\InvalidArgumentException $e)
+        {
+            return $this->error('Oy bilgileri veya önerilen güncel konu geçersiz.');
+        }
 
-        return $this->redirect(
-            $this->buildLink('threads', $thread) . '#wrxt-thread-freshness'
-        );
+        return $this->redirect($this->buildLink('threads', $thread) . '#wrxt-thread-freshness');
     }
 
     public function actionFreshnessModerate(ParameterBag $params)
     {
         $this->assertPostOnly();
-
         $thread = $this->assertViewableThread($params->thread_id);
-        if (!$thread->wrxtFreshnessCanModerate())
+
+        if (!$thread->canWrxtFreshnessModerate())
         {
             return $this->noPermission();
         }
@@ -82,23 +89,41 @@ class Thread extends XFCP_Thread
         $service->setStatus($status);
         $service->save();
 
-        return $this->redirect(
-            $this->buildLink('threads', $thread) . '#wrxt-thread-freshness'
+        return $this->redirect($this->buildLink('threads', $thread) . '#wrxt-thread-freshness');
+    }
+
+    public function actionFreshnessOwnerClaim(ParameterBag $params)
+    {
+        $this->assertPostOnly();
+        $thread = $this->assertViewableThread($params->thread_id);
+
+        if (!$thread->canWrxtFreshnessOwnerClaim())
+        {
+            return $this->noPermission();
+        }
+
+        $service = $this->service(
+            'WarextStudios\ThreadFreshness:ThreadFreshness\OwnerClaim',
+            $thread,
+            \XF::visitor()
         );
+        $service->setClaimed($this->filter('claimed', 'bool'));
+        $service->save();
+
+        return $this->redirect($this->buildLink('threads', $thread) . '#wrxt-thread-freshness');
     }
 
     public function actionFreshnessReplacement(ParameterBag $params)
     {
         $this->assertPostOnly();
-
         $thread = $this->assertViewableThread($params->thread_id);
-        if (!$thread->wrxtFreshnessCanManageReplacement())
+
+        if (!$thread->canWrxtFreshnessManageReplacement())
         {
             return $this->noPermission();
         }
 
         $replacementThreadId = $this->filter('replacement_thread_id', 'uint');
-
         $service = $this->service(
             'WarextStudios\ThreadFreshness:ThreadFreshness\Replacement',
             $thread,
@@ -112,11 +137,9 @@ class Thread extends XFCP_Thread
         }
         catch (\InvalidArgumentException $e)
         {
-            return $this->error('Geçerli ve görüntülenebilir bir güncel çözüm konusu seçmelisiniz.');
+            return $this->error('Geçerli, görüntülenebilir ve bu konudan daha yeni bir çözüm konusu seçmelisiniz.');
         }
 
-        return $this->redirect(
-            $this->buildLink('threads', $thread) . '#wrxt-thread-freshness-replacement'
-        );
+        return $this->redirect($this->buildLink('threads', $thread) . '#wrxt-thread-freshness-replacement');
     }
 }
