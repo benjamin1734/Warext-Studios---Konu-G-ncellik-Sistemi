@@ -20,7 +20,7 @@ class StatusCalculator
                 continue;
             }
 
-            $date = (int)$vote['vote_date'];
+            $date = max(0, (int)$vote['vote_date']);
             $weight = VoteWeight::forAge($date, $now);
             $lastVoteDate = max($lastVoteDate, $date);
 
@@ -41,23 +41,23 @@ class StatusCalculator
         $score = $totalWeight > 0 ? $positiveWeight / $totalWeight : 0.0;
         $status = 'unverified';
 
-        if ($voteCount >= 8 && $score <= 0.20)
+        if ($totalWeight >= 8.0 && $score <= 0.20)
         {
             $status = 'not_working';
         }
-        elseif ($voteCount >= 5 && $score <= 0.30)
+        elseif ($totalWeight >= 5.0 && $score <= 0.30)
         {
             $status = 'questionable';
         }
-        elseif ($voteCount >= 5 && $score >= 0.80)
+        elseif ($totalWeight >= 5.0 && $score >= 0.80)
         {
             $status = 'current';
         }
-        elseif ($voteCount >= 3 && $score >= 0.75)
+        elseif ($totalWeight >= 3.0 && $score >= 0.75)
         {
             $status = 'likely_current';
         }
-        elseif ($voteCount >= 3 && $score >= 0.40 && $score <= 0.60)
+        elseif ($totalWeight >= 3.0 && $score >= 0.40 && $score <= 0.60)
         {
             $status = 'mixed';
         }

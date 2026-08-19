@@ -40,7 +40,7 @@ class ThreadFreshness extends Repository
         {
             $votes[] = [
                 'vote' => $vote->vote,
-                'vote_date' => $vote->vote_date
+                'vote_date' => max((int)$vote->vote_date, (int)$vote->updated_date)
             ];
         }
 
@@ -50,9 +50,9 @@ class ThreadFreshness extends Repository
 
         $state->bulkSet($result);
         $state->last_calculated_date = \XF::$time;
-        if (in_array($result['status'], ['current', 'likely_current'], true))
+        if (in_array($result['status'], ['current', 'likely_current'], true) && $result['last_vote_date'] > 0)
         {
-            $state->last_verified_date = \XF::$time;
+            $state->last_verified_date = $result['last_vote_date'];
         }
         $state->save();
 

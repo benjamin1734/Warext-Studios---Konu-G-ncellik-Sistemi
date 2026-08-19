@@ -8,9 +8,14 @@ class Recalculate extends AbstractRebuildJob
 {
     protected function getNextIds($start, $batch): array
     {
-        return $this->app->db()->fetchAllColumn(
-            'SELECT thread_id FROM xf_wrxt_thread_freshness_state WHERE thread_id > ? ORDER BY thread_id LIMIT ' . (int)$batch,
-            $start
+        $db = $this->app->db();
+
+        return $db->fetchAllColumn(
+            $db->limit(
+                'SELECT thread_id FROM xf_wrxt_thread_freshness_state WHERE thread_id > ? ORDER BY thread_id',
+                max(1, (int)$batch)
+            ),
+            (int)$start
         );
     }
 
@@ -19,8 +24,8 @@ class Recalculate extends AbstractRebuildJob
         $this->app->repository('WarextStudios\ThreadFreshness:ThreadFreshness')->recalculateThread((int)$id);
     }
 
-    protected function getStatusType(): string
+    protected function getStatusType(): \XF\Phrase
     {
-        return 'wrxt_thread_freshness';
+        return \XF::phrase('threads');
     }
 }
