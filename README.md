@@ -12,6 +12,8 @@ XenForo destek ve bilgi kategorilerindeki eski konuların topluluk tarafından g
 - Moderatör doğrulaması
 - Yeniden doğrulama döngüsü
 - XenForo izin sistemi ve ACP ayarları
+- PHP 8.4 otomatik kontrolü
+- Durum hesaplama testleri
 
 ## Durum
 
