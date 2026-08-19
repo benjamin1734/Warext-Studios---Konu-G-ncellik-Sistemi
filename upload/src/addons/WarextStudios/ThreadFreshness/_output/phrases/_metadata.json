@@ -25,5 +25,14 @@
     },
     "cron_entry.wrxtFreshnessRecalculate.txt": {
         "hash": "552551fcb5303216863c8e26d2cc50f9"
+    },
+    "permission.wrxtFreshness_changeVote.txt": {
+        "hash": "82753288c7789c9b37c6e10e00ffc56a"
+    },
+    "permission.wrxtFreshness_voteOwn.txt": {
+        "hash": "0f2e6cfa6823d7527e90c09a55daea70"
+    },
+    "permission.wrxtFreshness_moderate.txt": {
+        "hash": "e74165fe47a57eb0353e1f9e9777d817"
     }
 }

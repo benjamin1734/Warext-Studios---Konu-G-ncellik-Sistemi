@@ -1,0 +1,9 @@
+{
+    "template": "forum_view",
+    "description": "Forum konu listesine güncellik filtre menüsü ekler",
+    "execution_order": 20,
+    "enabled": true,
+    "action": "str_replace",
+    "find": "<xf:ad position=\"forum_view_above_thread_list\" arg-forum=\"{$forum}\" />",
+    "replace": "<xf:if is=\"$forum.wrxt_freshness_enabled\">\n\t<div class=\"block-outer\">\n\t\t<div class=\"block-outer-opposite\">\n\t\t\t<a class=\"button button--link menuTrigger\" data-xf-click=\"menu\" role=\"button\" tabindex=\"0\" aria-expanded=\"false\" aria-haspopup=\"true\">Güncellik filtresi</a>\n\t\t\t<div class=\"menu\" data-menu=\"menu\" aria-hidden=\"true\">\n\t\t\t\t<div class=\"menu-content\">\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', null)) }}\">Tümü</a>\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', 'current')) }}\">Güncel</a>\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', 'likely_current')) }}\">Muhtemelen güncel</a>\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', 'mixed')) }}\">Kararsız</a>\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', 'questionable')) }}\">Güncelliği şüpheli</a>\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', 'not_working')) }}\">Artık çalışmıyor</a>\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', 'revalidating')) }}\">Yeniden doğrulanıyor</a>\n\t\t\t\t\t<a class=\"menu-linkRow\" href=\"{{ link('forums', $forum, $filters|replace('freshness_status', 'unverified')) }}\">Doğrulanmamış</a>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</xf:if>\n$0"
+}

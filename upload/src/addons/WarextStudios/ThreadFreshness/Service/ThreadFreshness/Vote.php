@@ -2,7 +2,6 @@
 
 namespace WarextStudios\ThreadFreshness\Service\ThreadFreshness;
 
-use WarextStudios\ThreadFreshness\Util\VersionSummary;
 use XF\Entity\Thread;
 use XF\Entity\User;
 use XF\Service\AbstractService;
@@ -29,34 +28,17 @@ class Vote extends AbstractService
         {
             throw new \InvalidArgumentException('Invalid vote');
         }
-
         $this->vote = $vote;
     }
 
     public function setReason(string $reason): void
     {
-        $reason = trim($reason);
-        $allowed = [
-            '',
-            'outdated_version',
-            'dead_links',
-            'method_invalid',
-            'incomplete',
-            'did_not_work',
-            'other'
-        ];
-
-        if (!in_array($reason, $allowed, true))
-        {
-            throw new \InvalidArgumentException('Invalid reason');
-        }
-
-        $this->reason = $reason;
+        $this->reason = mb_substr(trim($reason), 0, 64);
     }
 
     public function setVersion(string $version): void
     {
-        $this->version = VersionSummary::clean($version);
+        $this->version = mb_substr(trim($version), 0, 100);
     }
 
     public function setMessage(string $message): void
@@ -70,16 +52,24 @@ class Vote extends AbstractService
         {
             throw new \LogicException('Thread and user must exist');
         }
-
         if (!in_array($this->vote, [-1, 1], true))
         {
             throw new \LogicException('Vote is required');
         }
-
-        $configuredVersions = $this->thread->wrxtFreshnessGetConfiguredVersions();
-        if ($configuredVersions && !in_array($this->version, $configuredVersions, true))
+        if (!$this->thread->wrxtFreshnessCanVote())
         {
-            throw new \LogicException('Invalid version');
+            throw new \LogicException('Permission denied');
+        }
+        if (!$this->user->hasPermission('wrxtFreshness', 'vote'))
+        {
+            throw new \LogicException('Permission denied');
+        }
+        if (
+            (int)$this->thread->user_id === (int)$this->user->user_id
+            && !$this->user->hasPermission('wrxtFreshness', 'voteOwn')
+        )
+        {
+            throw new \LogicException('Permission denied');
         }
 
         $em = $this->app->em();
@@ -87,6 +77,11 @@ class Vote extends AbstractService
             ->where('thread_id', $this->thread->thread_id)
             ->where('user_id', $this->user->user_id)
             ->fetchOne();
+
+        if ($entity && !$this->user->hasPermission('wrxtFreshness', 'changeVote'))
+        {
+            throw new \LogicException('Permission denied');
+        }
 
         if (!$entity)
         {
@@ -102,7 +97,6 @@ class Vote extends AbstractService
         $entity->save();
 
         $this->repository()->recalculateThread($this->thread->thread_id, 'vote', $this->user->user_id);
-
         return $entity;
     }
 

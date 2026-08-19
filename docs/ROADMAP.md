@@ -23,14 +23,15 @@
 
 ## Faz 3
 - [x] Konu paneli durum rozetleri
+- [x] Konu listesi durum rozetleri
+- [x] Liste durum filtresi backend'i
+- [x] Moderatör doğrulaması
 - [x] Yeniden doğrulama döngüsü
 - [x] Otomatik yeniden hesaplama cron'u
-- [ ] Konu listesi durum rozetleri
-- [ ] Liste filtreleri
-- [ ] Moderatör doğrulaması
 - [ ] Bildirimler
-- [ ] Oy değiştirme iznini ayrılaştırma
-- [ ] Kendi konusuna oy iznini ayrılaştırma
+- [x] Oy değiştirme iznini ayrılaştırma
+- [x] Kendi konusuna oy iznini ayrılaştırma
+- [x] Liste filtre arayüzü
 
 ## Faz 4
 - [ ] ACP istatistikleri

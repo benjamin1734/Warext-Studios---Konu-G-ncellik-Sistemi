@@ -4,11 +4,13 @@ namespace WarextStudios\ThreadFreshness\XF\Entity;
 
 use WarextStudios\ThreadFreshness\Entity\ThreadState;
 use WarextStudios\ThreadFreshness\Util\Eligibility;
+use WarextStudios\ThreadFreshness\Util\ModeratorStatus;
 use XF\Mvc\Entity\Structure;
 
 class Thread extends XFCP_Thread
 {
     protected ?array $wrxtFreshnessVersionSummary = null;
+    protected ?int $wrxtFreshnessVisitorVote = null;
 
     public static function getStructure(Structure $structure): Structure
     {
@@ -60,23 +62,49 @@ class Thread extends XFCP_Thread
         }
 
         $visitor = \XF::visitor();
+        $allowOwnThread = (int)$visitor->user_id !== (int)$this->user_id
+            || $visitor->hasPermission('wrxtFreshness', 'voteOwn');
 
-        return Eligibility::canVisitorVote(
+        if (!Eligibility::canVisitorVote(
             (int)$visitor->user_id,
             (int)$this->user_id,
             (int)$visitor->register_date,
             (int)$visitor->message_count,
             $visitor->hasPermission('wrxtFreshness', 'vote'),
-            (bool)(\XF::options()->wrxtFreshnessAllowOwnThread ?? false),
+            $allowOwnThread,
             (int)(\XF::options()->wrxtFreshnessMinAccountDays ?? 7),
             (int)(\XF::options()->wrxtFreshnessMinMessages ?? 3),
             \XF::$time
-        );
+        ))
+        {
+            return false;
+        }
+
+        return $this->wrxtFreshnessGetVisitorVote() === 0
+            || $visitor->hasPermission('wrxtFreshness', 'changeVote');
+    }
+
+    public function wrxtFreshnessCanModerate(): bool
+    {
+        return $this->wrxtFreshnessIsEnabled()
+            && (int)\XF::visitor()->user_id > 0
+            && \XF::visitor()->hasPermission('wrxtFreshness', 'moderate');
     }
 
     public function wrxtFreshnessGetState(): ?ThreadState
     {
         return $this->WrxtFreshnessState;
+    }
+
+    public function wrxtFreshnessGetDisplayStatus(): string
+    {
+        $state = $this->wrxtFreshnessGetState();
+        if (!$state)
+        {
+            return 'unverified';
+        }
+
+        return ModeratorStatus::effective((string)$state->status, (string)$state->moderator_status);
     }
 
     public function wrxtFreshnessGetConfiguredVersions(): array
@@ -98,10 +126,15 @@ class Thread extends XFCP_Thread
 
     public function wrxtFreshnessGetVisitorVote(): int
     {
+        if ($this->wrxtFreshnessVisitorVote !== null)
+        {
+            return $this->wrxtFreshnessVisitorVote;
+        }
+
         $visitorId = (int)\XF::visitor()->user_id;
         if ($visitorId <= 0)
         {
-            return 0;
+            return $this->wrxtFreshnessVisitorVote = 0;
         }
 
         $vote = \XF::finder('WarextStudios\ThreadFreshness:Vote')
@@ -109,6 +142,6 @@ class Thread extends XFCP_Thread
             ->where('user_id', $visitorId)
             ->fetchOne();
 
-        return $vote ? (int)$vote->vote : 0;
+        return $this->wrxtFreshnessVisitorVote = $vote ? (int)$vote->vote : 0;
     }
 }

@@ -4,5 +4,14 @@
     },
     "public/wrxt_thread_freshness_thread_view.json": {
         "hash": "74a23a3e152e27453266baeea73c2297"
+    },
+    "public/wrxt_thread_freshness_thread_list.json": {
+        "hash": "fa0ab8e9abbec0a255c7780913f6e64f"
+    },
+    "public/wrxt_thread_freshness_moderator.json": {
+        "hash": "2aea9cf975dd4cb9d77795554d68b4e4"
+    },
+    "public/wrxt_thread_freshness_forum_filter.json": {
+        "hash": "026bed8e878cbac266bcd92b7a5edab1"
     }
 }

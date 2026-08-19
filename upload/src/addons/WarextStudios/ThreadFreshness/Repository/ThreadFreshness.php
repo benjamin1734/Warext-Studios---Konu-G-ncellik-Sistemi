@@ -3,6 +3,7 @@
 namespace WarextStudios\ThreadFreshness\Repository;
 
 use WarextStudios\ThreadFreshness\Entity\ThreadState;
+use WarextStudios\ThreadFreshness\Util\ModeratorStatus;
 use WarextStudios\ThreadFreshness\Util\Revalidation;
 use WarextStudios\ThreadFreshness\Util\StatusCalculator;
 use WarextStudios\ThreadFreshness\Util\VersionSummary;
@@ -35,6 +36,35 @@ class ThreadFreshness extends Repository
         return $state;
     }
 
+    public function preloadStatesForThreads($threads, $stickyThreads = null): void
+    {
+        $ids = [];
+
+        foreach ([$threads, $stickyThreads] as $collection)
+        {
+            if (!$collection)
+            {
+                continue;
+            }
+
+            foreach ($collection as $thread)
+            {
+                $threadId = (int)$thread->thread_id;
+                if ($threadId > 0)
+                {
+                    $ids[$threadId] = $threadId;
+                }
+            }
+        }
+
+        if ($ids)
+        {
+            $this->finder('WarextStudios\ThreadFreshness:ThreadState')
+                ->where('thread_id', array_values($ids))
+                ->fetch();
+        }
+    }
+
     public function getVersionSummaryForThread(int $threadId, int $limit = 8): array
     {
         $votes = [];
@@ -51,6 +81,38 @@ class ThreadFreshness extends Repository
         return VersionSummary::summarize($votes, \XF::$time, $limit);
     }
 
+    public function getEffectiveStatus(?ThreadState $state): string
+    {
+        if (!$state)
+        {
+            return 'unverified';
+        }
+
+        return ModeratorStatus::effective((string)$state->status, (string)$state->moderator_status);
+    }
+
+    public function logStatusChange(
+        int $threadId,
+        string $oldStatus,
+        string $newStatus,
+        string $triggerType,
+        int $userId = 0
+    ): void
+    {
+        if ($oldStatus === $newStatus)
+        {
+            return;
+        }
+
+        $log = $this->em->create('WarextStudios\ThreadFreshness:StatusLog');
+        $log->thread_id = $threadId;
+        $log->old_status = $oldStatus;
+        $log->new_status = $newStatus;
+        $log->trigger_type = $triggerType;
+        $log->user_id = $userId;
+        $log->save();
+    }
+
     public function recalculateThread(int $threadId, string $triggerType = 'system', int $userId = 0): ThreadState
     {
         $votes = [];
@@ -64,7 +126,7 @@ class ThreadFreshness extends Repository
 
         $result = StatusCalculator::calculate($votes, \XF::$time);
         $state = $this->getOrCreateState($threadId);
-        $oldStatus = $state->exists() ? $state->status : '';
+        $oldStatus = $state->exists() ? (string)$state->status : '';
         $lastVerifiedDate = (int)$state->last_verified_date;
         $revalidateDays = max(1, (int)(\XF::options()->wrxtFreshnessRevalidateDays ?? 180));
 
@@ -91,17 +153,7 @@ class ThreadFreshness extends Repository
         }
 
         $state->save();
-
-        if ($oldStatus !== $state->status)
-        {
-            $log = $this->em->create('WarextStudios\ThreadFreshness:StatusLog');
-            $log->thread_id = $threadId;
-            $log->old_status = $oldStatus;
-            $log->new_status = $state->status;
-            $log->trigger_type = $triggerType;
-            $log->user_id = $userId;
-            $log->save();
-        }
+        $this->logStatusChange($threadId, $oldStatus, (string)$state->status, $triggerType, $userId);
 
         return $state;
     }

@@ -1,5 +1,14 @@
 {
     "wrxtFreshness-vote.json": {
         "hash": "447746bc299b55d3d6bc126791b7741f"
+    },
+    "wrxtFreshness-changeVote.json": {
+        "hash": "1931552c1f121f8dcb11046d7b2df1a6"
+    },
+    "wrxtFreshness-voteOwn.json": {
+        "hash": "e01f717bb23117374197146262b4ef3d"
+    },
+    "wrxtFreshness-moderate.json": {
+        "hash": "03e9d7bcd7a45980f171522eb464bc52"
     }
 }

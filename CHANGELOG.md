@@ -1,5 +1,19 @@
 # Değişiklik Günlüğü
 
+## 1.0.0 Alpha 5
+
+- Konu listesi güncellik rozetleri eklendi.
+- Forum konu listeleri için durum kayıtlarının toplu ön yüklemesi eklendi.
+- Durum filtresi backend'i eklendi.
+- Forum görünümüne güncellik filtre menüsü eklendi.
+- Oy değiştirme izni ayrı permission haline getirildi.
+- Kendi konusuna oy verme izni ayrı permission haline getirildi.
+- Moderatör doğrulama izni ve endpoint'i eklendi.
+- Moderatör doğrulama servisi ve durum override mantığı eklendi.
+- Moderatör durum geçişleri geçmiş kaydına bağlandı.
+- Oy servisinde permission kontrolleri ikinci kez doğrulanacak şekilde sertleştirildi.
+- Moderatör durum testleri eklendi.
+
 ## 1.0.0 Alpha 4
 
 - Forum bazlı etkinleştirme doğrudan forum düzenleme ekranına taşındı.

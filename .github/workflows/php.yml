@@ -17,3 +17,4 @@ jobs:
       - run: php tests/eligibility.php
       - run: php tests/version_summary.php
       - run: php tests/revalidation.php
+      - run: php tests/moderator_status.php

@@ -17,9 +17,9 @@ XenForo destek ve bilgi kategorilerindeki eski konuların topluluk tarafından g
 
 ## Güncel Geliştirme Durumu
 
-Alpha 3 çekirdeğinde forum bazlı aktivasyon, bekleme süresi, oy izni, kullanıcı uygunluk kontrolleri, konu sayfası doğrulama paneli, oy endpoint'i, sürüm alanı ve olumsuz oy nedenleri bulunur.
+Alpha 5 çekirdeğinde forum bazlı aktivasyon, forum başına bekleme ve sürüm ayarları, topluluk oylaması, konu ve konu listesi durum rozetleri, sürüm bazlı sonuçlar, yeniden doğrulama, moderatör doğrulaması ve ayrıştırılmış oy izinleri bulunur.
 
-Yerel doğrulamada PHP 8.4 syntax kontrolü, durum hesaplama testleri ve konu/ziyaretçi uygunluk testleri başarıyla geçmiştir.
+Yerel doğrulamada PHP 8.4 syntax kontrolü, durum hesaplama, uygunluk, sürüm, yeniden doğrulama ve moderatör durum testleri başarıyla geçmiştir.
 
 Normal dağıtım için `_data` XML dışa aktarımı ve nihai release ZIP henüz tamamlanmamıştır.
 
