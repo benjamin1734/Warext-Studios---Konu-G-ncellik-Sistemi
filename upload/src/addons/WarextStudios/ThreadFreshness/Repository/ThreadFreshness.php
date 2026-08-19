@@ -219,29 +219,62 @@ class ThreadFreshness extends Repository
         $limit = max(1, min(5000, $limit));
         $db = $this->db();
 
-        $db->query(
-            "DELETE v
-            FROM xf_wrxt_thread_freshness_vote v
-            LEFT JOIN xf_thread t ON t.thread_id = v.thread_id
-            LEFT JOIN xf_user u ON u.user_id = v.user_id
-            WHERE t.thread_id IS NULL OR u.user_id IS NULL
-            LIMIT {$limit}"
+        $voteIds = $db->fetchAllColumn(
+            $db->limit(
+                'SELECT v.vote_id
+                FROM xf_wrxt_thread_freshness_vote v
+                LEFT JOIN xf_thread t ON t.thread_id = v.thread_id
+                LEFT JOIN xf_user u ON u.user_id = v.user_id
+                WHERE t.thread_id IS NULL OR u.user_id IS NULL
+                ORDER BY v.vote_id',
+                $limit
+            )
         );
 
-        $db->query(
-            "DELETE l
-            FROM xf_wrxt_thread_freshness_log l
-            LEFT JOIN xf_thread t ON t.thread_id = l.thread_id
-            WHERE t.thread_id IS NULL
-            LIMIT {$limit}"
+        if ($voteIds)
+        {
+            $db->delete(
+                'xf_wrxt_thread_freshness_vote',
+                'vote_id IN (' . $db->quote($voteIds) . ')'
+            );
+        }
+
+        $logIds = $db->fetchAllColumn(
+            $db->limit(
+                'SELECT l.log_id
+                FROM xf_wrxt_thread_freshness_log l
+                LEFT JOIN xf_thread t ON t.thread_id = l.thread_id
+                WHERE t.thread_id IS NULL
+                ORDER BY l.log_id',
+                $limit
+            )
         );
 
-        $db->query(
-            "DELETE s
-            FROM xf_wrxt_thread_freshness_state s
-            LEFT JOIN xf_thread t ON t.thread_id = s.thread_id
-            WHERE t.thread_id IS NULL
-            LIMIT {$limit}"
+        if ($logIds)
+        {
+            $db->delete(
+                'xf_wrxt_thread_freshness_log',
+                'log_id IN (' . $db->quote($logIds) . ')'
+            );
+        }
+
+        $threadIds = $db->fetchAllColumn(
+            $db->limit(
+                'SELECT s.thread_id
+                FROM xf_wrxt_thread_freshness_state s
+                LEFT JOIN xf_thread t ON t.thread_id = s.thread_id
+                WHERE t.thread_id IS NULL
+                ORDER BY s.thread_id',
+                $limit
+            )
         );
+
+        if ($threadIds)
+        {
+            $db->delete(
+                'xf_wrxt_thread_freshness_state',
+                'thread_id IN (' . $db->quote($threadIds) . ')'
+            );
+        }
     }
 }
