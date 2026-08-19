@@ -15,6 +15,12 @@ XenForo destek ve bilgi kategorilerindeki eski konuların topluluk tarafından g
 - PHP 8.4 otomatik kontrolü
 - Durum hesaplama testleri
 
+## Güncel Geliştirme Durumu
+
+Alpha 3 çekirdeğinde forum bazlı aktivasyon, bekleme süresi, oy izni, kullanıcı uygunluk kontrolleri, konu sayfası doğrulama paneli, oy endpoint'i, sürüm alanı ve olumsuz oy nedenleri bulunur.
+
+Normal dağıtım için `_data` XML dışa aktarımı ve nihai release ZIP henüz tamamlanmamıştır.
+
 ## Durum
 
 Geliştirme aşamasındadır.
