@@ -1,11 +1,13 @@
-name: PHP 8.4 Kontrol
+name: Nihai Paket
 
 on:
   push:
-  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
-  test:
+  build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,3 +25,11 @@ jobs:
       - run: php tests/security_static.php
       - run: php tools/build_data.php
       - run: php tests/release_data.php
+      - run: php tools/prepare_release.php
+      - run: cd build/release && zip -qr ../Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip .
+      - run: unzip -t build/Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Warext-Studios-Konu-Guncellik-Sistemi-1.0.0
+          path: build/Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip
+          if-no-files-found: error

@@ -1,0 +1,11 @@
+{
+    "route_type": "public",
+    "route_prefix": "guncel-cozumler",
+    "sub_name": "",
+    "format": "",
+    "build_class": "",
+    "build_method": "",
+    "controller": "WarextStudios\\ThreadFreshness:Freshness",
+    "context": "",
+    "action_prefix": ""
+}

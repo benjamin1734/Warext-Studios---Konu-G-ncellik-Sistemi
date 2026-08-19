@@ -34,9 +34,13 @@ class Setup extends AbstractSetup
             $table->addColumn('moderator_status', 'varchar', 32)->setDefault('');
             $table->addColumn('moderator_user_id', 'int')->unsigned()->setDefault(0);
             $table->addColumn('moderator_date', 'int')->unsigned()->setDefault(0);
+            $table->addColumn('replacement_thread_id', 'int')->unsigned()->setDefault(0);
+            $table->addColumn('replacement_user_id', 'int')->unsigned()->setDefault(0);
+            $table->addColumn('replacement_date', 'int')->unsigned()->setDefault(0);
             $table->addPrimaryKey('thread_id');
             $table->addKey('status');
             $table->addKey('last_calculated_date');
+            $table->addKey('replacement_thread_id');
         });
     }
 
@@ -122,6 +126,17 @@ class Setup extends AbstractSetup
         $this->schemaManager()->alterTable('xf_wrxt_thread_freshness_vote', function(Alter $table)
         {
             $table->addKey(['thread_id', 'version'], 'thread_version');
+        });
+    }
+
+    public function upgrade1000070Step1(): void
+    {
+        $this->schemaManager()->alterTable('xf_wrxt_thread_freshness_state', function(Alter $table)
+        {
+            $table->addColumn('replacement_thread_id', 'int')->unsigned()->setDefault(0);
+            $table->addColumn('replacement_user_id', 'int')->unsigned()->setDefault(0);
+            $table->addColumn('replacement_date', 'int')->unsigned()->setDefault(0);
+            $table->addKey('replacement_thread_id');
         });
     }
 

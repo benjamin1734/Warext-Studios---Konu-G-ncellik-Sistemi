@@ -26,7 +26,10 @@ class ThreadState extends Entity
             'last_verified_date' => ['type' => self::UINT, 'default' => 0],
             'moderator_status' => ['type' => self::STR, 'maxLength' => 32, 'default' => ''],
             'moderator_user_id' => ['type' => self::UINT, 'default' => 0],
-            'moderator_date' => ['type' => self::UINT, 'default' => 0]
+            'moderator_date' => ['type' => self::UINT, 'default' => 0],
+            'replacement_thread_id' => ['type' => self::UINT, 'default' => 0],
+            'replacement_user_id' => ['type' => self::UINT, 'default' => 0],
+            'replacement_date' => ['type' => self::UINT, 'default' => 0]
         ];
         $structure->relations = [
             'Thread' => [
@@ -39,6 +42,18 @@ class ThreadState extends Entity
                 'entity' => 'XF:User',
                 'type' => self::TO_ONE,
                 'conditions' => [['user_id', '=', '$moderator_user_id']],
+                'primary' => true
+            ],
+            'ReplacementThread' => [
+                'entity' => 'XF:Thread',
+                'type' => self::TO_ONE,
+                'conditions' => [['thread_id', '=', '$replacement_thread_id']],
+                'primary' => true
+            ],
+            'ReplacementUser' => [
+                'entity' => 'XF:User',
+                'type' => self::TO_ONE,
+                'conditions' => [['user_id', '=', '$replacement_user_id']],
                 'primary' => true
             ]
         ];

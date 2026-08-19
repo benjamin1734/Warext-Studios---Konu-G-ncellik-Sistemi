@@ -34,12 +34,12 @@
 - [x] Liste filtre arayüzü
 
 ## Faz 4
-- [ ] ACP istatistikleri
-- [ ] Arama entegrasyonu
-- [ ] Güncel çözüm yönlendirmesi
+- [x] ACP istatistikleri
+- [x] Güncel çözümler arama entegrasyonu
+- [x] Güncel çözüm yönlendirmesi
 - [x] Orphan kayıt temizliği
 - [x] Eşzamanlı oy güvenliği
-- [ ] `_data` XML dışa aktarımı
-- [ ] Performans ve güvenlik testleri
-- [ ] Gerçek XenForo 2.3 entegrasyon testi
-- [ ] Nihai release ZIP
+- [x] `_data` XML üretimi
+- [x] Otomatik performans ve güvenlik kontrolleri
+- [ ] Lisanslı XenForo 2.3 canlı kurulum kabul testi
+- [x] Nihai release ZIP

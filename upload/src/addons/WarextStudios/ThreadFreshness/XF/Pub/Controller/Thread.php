@@ -86,4 +86,37 @@ class Thread extends XFCP_Thread
             $this->buildLink('threads', $thread) . '#wrxt-thread-freshness'
         );
     }
+
+    public function actionFreshnessReplacement(ParameterBag $params)
+    {
+        $this->assertPostOnly();
+
+        $thread = $this->assertViewableThread($params->thread_id);
+        if (!$thread->wrxtFreshnessCanManageReplacement())
+        {
+            return $this->noPermission();
+        }
+
+        $replacementThreadId = $this->filter('replacement_thread_id', 'uint');
+
+        $service = $this->service(
+            'WarextStudios\ThreadFreshness:ThreadFreshness\Replacement',
+            $thread,
+            \XF::visitor()
+        );
+        $service->setReplacementThreadId($replacementThreadId);
+
+        try
+        {
+            $service->save();
+        }
+        catch (\InvalidArgumentException $e)
+        {
+            return $this->error('Geçerli ve görüntülenebilir bir güncel çözüm konusu seçmelisiniz.');
+        }
+
+        return $this->redirect(
+            $this->buildLink('threads', $thread) . '#wrxt-thread-freshness-replacement'
+        );
+    }
 }

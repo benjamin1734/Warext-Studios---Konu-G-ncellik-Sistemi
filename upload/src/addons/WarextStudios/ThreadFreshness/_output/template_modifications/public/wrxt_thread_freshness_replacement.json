@@ -1,0 +1,9 @@
+{
+    "template": "thread_view",
+    "description": "Eski konudan güncel çözüme yönlendirme panelini ekler",
+    "execution_order": 30,
+    "enabled": true,
+    "action": "preg_replace",
+    "find": "#<xf:ad position=\"thread_view_below_messages\" arg-thread=\"\\{\\$thread\\}\" />#",
+    "replace": "<xf:set var=\"$wrxtReplacement\" value=\"{$thread.wrxtFreshnessGetReplacementThread()}\" />\n<xf:if is=\"$wrxtReplacement OR $thread.wrxtFreshnessCanManageReplacement()\">\n\t<div class=\"block\" id=\"wrxt-thread-freshness-replacement\">\n\t\t<div class=\"block-container\">\n\t\t\t<h3 class=\"block-header\">Güncel çözüm</h3>\n\t\t\t<div class=\"block-body\">\n\t\t\t\t<xf:if is=\"$wrxtReplacement\">\n\t\t\t\t\t<div class=\"block-row\">\n\t\t\t\t\t\tBu konu için daha güncel çözüm:\n\t\t\t\t\t\t<a href=\"{{ link('threads', $wrxtReplacement) }}\"><strong>{$wrxtReplacement.title}</strong></a>\n\t\t\t\t\t</div>\n\t\t\t\t</xf:if>\n\t\t\t\t<xf:if is=\"$thread.wrxtFreshnessCanManageReplacement()\">\n\t\t\t\t\t<div class=\"block-row\">\n\t\t\t\t\t\t<xf:form action=\"{{ link('threads/freshness-replacement', $thread) }}\" ajax=\"true\">\n\t\t\t\t\t\t\t<xf:numberboxrow name=\"replacement_thread_id\"\n\t\t\t\t\t\t\t\tvalue=\"{{ $thread.wrxtFreshnessGetState() ? $thread.wrxtFreshnessGetState().replacement_thread_id : 0 }}\"\n\t\t\t\t\t\t\t\tmin=\"0\"\n\t\t\t\t\t\t\t\tlabel=\"Güncel çözüm konu ID\"\n\t\t\t\t\t\t\t\texplain=\"0 girerek yönlendirmeyi kaldırabilirsiniz.\" />\n\t\t\t\t\t\t\t<xf:submitrow submit=\"Kaydet\" />\n\t\t\t\t\t\t</xf:form>\n\t\t\t\t\t</div>\n\t\t\t\t</xf:if>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</xf:if>\n$0"
+}

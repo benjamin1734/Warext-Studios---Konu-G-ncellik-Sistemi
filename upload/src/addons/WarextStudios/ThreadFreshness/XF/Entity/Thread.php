@@ -91,6 +91,17 @@ class Thread extends XFCP_Thread
             && \XF::visitor()->hasPermission('wrxtFreshness', 'moderate');
     }
 
+    public function wrxtFreshnessCanManageReplacement(): bool
+    {
+        $visitor = \XF::visitor();
+        return $this->wrxtFreshnessIsEnabled()
+            && (int)$visitor->user_id > 0
+            && (
+                (int)$visitor->user_id === (int)$this->user_id
+                || $visitor->hasPermission('wrxtFreshness', 'moderate')
+            );
+    }
+
     public function wrxtFreshnessGetState(): ?ThreadState
     {
         return $this->WrxtFreshnessState;
@@ -143,5 +154,22 @@ class Thread extends XFCP_Thread
             ->fetchOne();
 
         return $this->wrxtFreshnessVisitorVote = $vote ? (int)$vote->vote : 0;
+    }
+
+    public function wrxtFreshnessGetReplacementThread(): ?\XF\Entity\Thread
+    {
+        $state = $this->wrxtFreshnessGetState();
+        if (!$state || !$state->replacement_thread_id || !$state->ReplacementThread)
+        {
+            return null;
+        }
+
+        $replacement = $state->ReplacementThread;
+        if (!$replacement->canView())
+        {
+            return null;
+        }
+
+        return $replacement;
     }
 }

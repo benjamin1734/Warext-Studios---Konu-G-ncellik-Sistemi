@@ -13,5 +13,8 @@
     },
     "public/wrxt_thread_freshness_forum_filter.json": {
         "hash": "026bed8e878cbac266bcd92b7a5edab1"
+    },
+    "public/wrxt_thread_freshness_replacement.json": {
+        "hash": "0f6695c65ee163f48b1b9733d2850acc"
     }
 }

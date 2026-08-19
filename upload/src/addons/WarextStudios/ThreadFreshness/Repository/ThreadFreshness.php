@@ -214,6 +214,177 @@ class ThreadFreshness extends Repository
         );
     }
 
+    public function getDashboardStats(): array
+    {
+        $db = $this->db();
+        $rows = $db->fetchPairs(
+            "SELECT
+                CASE
+                    WHEN moderator_status = 'current' THEN 'current'
+                    WHEN moderator_status = 'not_working' THEN 'not_working'
+                    WHEN moderator_status = 'review' THEN 'questionable'
+                    ELSE status
+                END AS effective_status,
+                COUNT(*) AS total
+            FROM xf_wrxt_thread_freshness_state
+            GROUP BY effective_status"
+        );
+
+        $stats = [
+            'total' => array_sum(array_map('intval', $rows)),
+            'current' => 0,
+            'likely_current' => 0,
+            'mixed' => 0,
+            'questionable' => 0,
+            'not_working' => 0,
+            'revalidating' => 0,
+            'unverified' => 0,
+            'enabled_forums' => (int)$db->fetchOne(
+                'SELECT COUNT(*) FROM xf_forum WHERE wrxt_freshness_enabled = 1'
+            ),
+            'votes' => (int)$db->fetchOne(
+                'SELECT COUNT(*) FROM xf_wrxt_thread_freshness_vote'
+            )
+        ];
+
+        foreach ($rows as $status => $total)
+        {
+            if (array_key_exists($status, $stats))
+            {
+                $stats[$status] = (int)$total;
+            }
+        }
+
+        return $stats;
+    }
+
+    public function getCriticalThreads(int $limit = 50): array
+    {
+        $limit = max(1, min(200, $limit));
+        $db = $this->db();
+
+        $rows = $db->fetchAll(
+            $db->limit(
+                "SELECT
+                    s.thread_id,
+                    t.title,
+                    s.negative_count,
+                    s.vote_count,
+                    s.last_calculated_date,
+                    CASE
+                        WHEN s.moderator_status = 'current' THEN 'current'
+                        WHEN s.moderator_status = 'not_working' THEN 'not_working'
+                        WHEN s.moderator_status = 'review' THEN 'questionable'
+                        ELSE s.status
+                    END AS effective_status
+                FROM xf_wrxt_thread_freshness_state s
+                INNER JOIN xf_thread t ON t.thread_id = s.thread_id
+                WHERE t.discussion_state = 'visible'
+                AND (
+                    CASE
+                        WHEN s.moderator_status = 'current' THEN 'current'
+                        WHEN s.moderator_status = 'not_working' THEN 'not_working'
+                        WHEN s.moderator_status = 'review' THEN 'questionable'
+                        ELSE s.status
+                    END
+                ) IN ('questionable', 'not_working', 'revalidating')
+                ORDER BY
+                    FIELD(effective_status, 'not_working', 'questionable', 'revalidating'),
+                    s.negative_count DESC,
+                    s.last_calculated_date ASC",
+                $limit
+            )
+        );
+
+        $results = [];
+        foreach ($rows as $row)
+        {
+            $thread = $this->em->find('XF:Thread', (int)$row['thread_id']);
+            if (!$thread)
+            {
+                continue;
+            }
+
+            $row['thread'] = $thread;
+            $results[] = $row;
+        }
+
+        return $results;
+    }
+
+    public function searchVerifiedThreads(string $query, string $status, int $limit = 100): array
+    {
+        $limit = max(1, min(200, $limit));
+        $db = $this->db();
+        $where = [
+            "t.discussion_state = 'visible'",
+            'f.wrxt_freshness_enabled = 1'
+        ];
+        $params = [];
+
+        if ($query !== '')
+        {
+            $where[] = 't.title LIKE ?';
+            $params[] = '%' . $query . '%';
+        }
+
+        $effective = "CASE
+            WHEN s.moderator_status = 'current' THEN 'current'
+            WHEN s.moderator_status = 'not_working' THEN 'not_working'
+            WHEN s.moderator_status = 'review' THEN 'questionable'
+            ELSE s.status
+        END";
+
+        if ($status !== 'all')
+        {
+            if ($status === 'current')
+            {
+                $where[] = "$effective IN ('current', 'likely_current')";
+            }
+            else
+            {
+                $where[] = "$effective = ?";
+                $params[] = $status;
+            }
+        }
+
+        $sql = "SELECT
+                s.thread_id,
+                s.score,
+                s.vote_count,
+                s.positive_count,
+                s.negative_count,
+                s.last_verified_date,
+                $effective AS effective_status
+            FROM xf_wrxt_thread_freshness_state s
+            INNER JOIN xf_thread t ON t.thread_id = s.thread_id
+            INNER JOIN xf_forum f ON f.node_id = t.node_id
+            WHERE " . implode(' AND ', $where) . "
+            ORDER BY s.last_verified_date DESC, t.last_post_date DESC";
+
+        $rows = $db->fetchAll($db->limit($sql, $limit * 2), $params);
+        $results = [];
+
+        foreach ($rows as $row)
+        {
+            $thread = $this->em->find('XF:Thread', (int)$row['thread_id']);
+            if (!$thread || !$thread->canView())
+            {
+                continue;
+            }
+
+            $row['thread'] = $thread;
+            $results[] = $row;
+
+            if (count($results) >= $limit)
+            {
+                break;
+            }
+        }
+
+        return $results;
+    }
+
     public function cleanupOrphans(int $limit = 1000): void
     {
         $limit = max(1, min(5000, $limit));
@@ -274,6 +445,30 @@ class ThreadFreshness extends Repository
             $db->delete(
                 'xf_wrxt_thread_freshness_state',
                 'thread_id IN (' . $db->quote($threadIds) . ')'
+            );
+        }
+
+        $replacementOwners = $db->fetchAllColumn(
+            $db->limit(
+                'SELECT s.thread_id
+                FROM xf_wrxt_thread_freshness_state s
+                LEFT JOIN xf_thread r ON r.thread_id = s.replacement_thread_id
+                WHERE s.replacement_thread_id > 0 AND r.thread_id IS NULL
+                ORDER BY s.thread_id',
+                $limit
+            )
+        );
+
+        if ($replacementOwners)
+        {
+            $db->update(
+                'xf_wrxt_thread_freshness_state',
+                [
+                    'replacement_thread_id' => 0,
+                    'replacement_user_id' => 0,
+                    'replacement_date' => 0
+                ],
+                'thread_id IN (' . $db->quote($replacementOwners) . ')'
             );
         }
     }

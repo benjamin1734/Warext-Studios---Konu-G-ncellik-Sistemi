@@ -1,16 +1,30 @@
 # Değişiklik Günlüğü
 
+## 1.0.0
+
+- Stable sürüm tamamlandı.
+- Güncel çözüm konusu yönlendirmesi eklendi.
+- Güncel Çözümler arama sayfası eklendi.
+- ACP içerik sağlığı özeti ve kritik konu listesi eklendi.
+- Alpha 6'dan stable sürüme güvenli şema yükseltmesi eklendi.
+- Replacement thread kayıtlarının orphan temizliği eklendi.
+- `_data` XML üretim aracı eklendi.
+- Release paket hazırlama ve SHA-256 hashes.json üretimi eklendi.
+- PHP kaynaklarında comment/TODO bulunmamasını doğrulayan güvenlik testi eklendi.
+- Mutating endpoint POST koruması, eşzamanlılık kilidi ve temel şema indeksleri otomatik kontrole bağlandı.
+- GitHub Actions üzerinden kurulabilir 1.0.0 ZIP üretimi eklendi.
+
 ## 1.0.0 Alpha 6
 
-- Önemli durum değişikliklerinde konu sahibine XenForo uyarısı eklendi.
-- Web push bildirimi eklendi.
-- Bildirim spam'ini engelleyen durum geçiş filtresi eklendi.
-- Oy ve moderatör işlemleri konu bazlı veritabanı kilidi ile güvenli hale getirildi.
-- Otomatik yeniden hesaplama işi kilitli yeniden hesaplama akışına geçirildi.
-- Silinmiş konu ve kullanıcı kayıtlarını temizleyen günlük cron eklendi.
-- Cleanup sorguları sınırlı ID seçimi ve tek tablo silme akışına geçirildi.
-- Bildirimler ACP üzerinden açılıp kapatılabilir hale getirildi.
-- Bildirim durumu testleri GitHub Actions akışına eklendi.
+- Konu sahipleri için anlamlı durum değişikliği bildirimleri eklendi.
+- XenForo web push bildirim şablonu eklendi.
+- Bildirimler yalnızca kritik veya iyileşen durum geçişleriyle sınırlandırıldı.
+- Bildirimleri ACP üzerinden açıp kapatma seçeneği eklendi.
+- Oy ve moderatör işlemleri konu bazlı veritabanı kilidine bağlandı.
+- Rebuild job işlemleri güvenli yeniden hesaplama akışına taşındı.
+- Orphan oy, durum ve geçmiş kayıtlarını temizleyen günlük cron eklendi.
+- Cleanup sorguları MySQL/MariaDB uyumlu sınırlı ID seçimi ve ardından silme akışına geçirildi.
+- Bildirim durum testleri eklendi.
 
 ## 1.0.0 Alpha 5
 
@@ -29,45 +43,30 @@
 ## 1.0.0 Alpha 4
 
 - Forum bazlı etkinleştirme doğrudan forum düzenleme ekranına taşındı.
-- Forum başına bekleme süresi eklendi.
-- Forum başına izin verilen sürüm listesi eklendi.
-- Sürüm bazlı oy sonucu hesaplama eklendi.
-- Eski Alpha 3 forum ID ayarları için geçiş adımı eklendi.
-- Yeniden doğrulama durumu ve süresi eklendi.
-- Günlük yeniden hesaplama cron girdisi eklendi.
-- Oy tablosuna thread + version indeksi eklendi.
-- Sürüm ve yeniden doğrulama testleri eklendi.
-- Konu paneline durum etiketleri ve sürüm bazlı sonuçlar eklendi.
+- Forum başına bekleme süresi ve sürüm listesi eklendi.
+- Sürüm bazlı ayrı sonuç hesaplaması eklendi.
+- Yeniden doğrulama döngüsü eklendi.
+- Günlük yeniden hesaplama cron'u eklendi.
+- Eski forum ID ayarları için migration eklendi.
 
 ## 1.0.0 Alpha 3
 
-- Seçili forum aktivasyonu eklendi.
-- Bekleme süresi eklendi.
-- XenForo oy izni eklendi.
-- Minimum hesap yaşı ve mesaj şartı eklendi.
-- Kendi konusuna oy verme ayarı eklendi.
 - Konu sayfası doğrulama paneli eklendi.
 - Oy endpoint'i eklendi.
-- Olumsuz oy nedenleri eklendi.
-- Sürüm bilgisi kaydı eklendi.
+- Oy permission kontrolü eklendi.
+- Kullanıcı uygunluk kontrolleri eklendi.
+- Olumsuz oy nedenleri ve sürüm alanı eklendi.
 
 ## 1.0.0 Alpha 2
 
-- XenForo 2.3 rebuild job dönüş tipi düzeltildi.
-- XenForo minimum sürüm kimliği stable 2.3.0 ile eşleştirildi.
-- Add-on sürüm kimliği düzeltildi.
-- Son doğrulama tarihinin job çalıştıkça yapay olarak yenilenmesi engellendi.
-- Güncellenen oyların en son işlem tarihi ağırlık hesabına dahil edildi.
-- Eski oyların minimum eşiklere tam oy olarak katkı vermesi engellendi.
-- PHP 8.4 otomatik syntax kontrolü eklendi.
-- Durum ve oy yaşlandırma testleri eklendi.
+- XenForo 2.3 uyumluluk düzeltmeleri yapıldı.
+- Oy güncelleme zamanının ağırlık hesabına etkisi düzeltildi.
+- Rebuild job dönüş tipi düzeltildi.
+- Otomatik PHP 8.4 ve algoritma testleri eklendi.
 
 ## 1.0.0 Alpha 1
 
-- XenForo 2.3 eklenti iskeleti oluşturuldu.
+- İlk eklenti iskeleti oluşturuldu.
 - Veritabanı tabloları eklendi.
-- Oy, durum ve durum geçmişi entity katmanı eklendi.
-- Oy yaşlandırma sistemi eklendi.
-- Durum hesaplama motoru eklendi.
-- Oy kaydetme servisi eklendi.
-- Toplu yeniden hesaplama işi eklendi.
+- Entity, Repository, Service ve Job katmanları eklendi.
+- Topluluk oy ağırlıklandırması ve durum hesaplama motoru eklendi.

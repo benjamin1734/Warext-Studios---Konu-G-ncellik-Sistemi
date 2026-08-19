@@ -1,0 +1,45 @@
+<xf:title>Konu Güncellik Sistemi</xf:title>
+
+<div class="block">
+    <div class="block-container">
+        <h2 class="block-header">İçerik sağlığı özeti</h2>
+        <div class="block-body">
+            <div class="block-row">
+                <dl class="pairs pairs--columns"><dt>Takip edilen konu</dt><dd>{$stats.total|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Toplam oy</dt><dd>{$stats.votes|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Etkin forum</dt><dd>{$stats.enabled_forums|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Güncel</dt><dd>{$stats.current|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Muhtemelen güncel</dt><dd>{$stats.likely_current|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Kararsız</dt><dd>{$stats.mixed|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Güncelliği şüpheli</dt><dd>{$stats.questionable|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Artık çalışmıyor</dt><dd>{$stats.not_working|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Yeniden doğrulanıyor</dt><dd>{$stats.revalidating|number}</dd></dl>
+                <dl class="pairs pairs--columns"><dt>Doğrulanmamış</dt><dd>{$stats.unverified|number}</dd></dl>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="block">
+    <div class="block-container">
+        <h2 class="block-header">Kontrol gerektiren konular</h2>
+        <div class="block-body">
+            <xf:if is="$criticalThreads">
+                <xf:datalist data-xf-init="responsive-datalist">
+                    <xf:foreach loop="$criticalThreads" value="$row">
+                        <xf:datarow>
+                            <xf:main>
+                                <a href="{{ link('public:threads', $row.thread) }}" target="_blank">{$row.thread.title}</a>
+                                <xf:explain>
+                                    Durum: {$row.effective_status} · Olumsuz: {$row.negative_count|number} · Toplam oy: {$row.vote_count|number}
+                                </xf:explain>
+                            </xf:main>
+                        </xf:datarow>
+                    </xf:foreach>
+                </xf:datalist>
+            <xf:else />
+                <div class="block-row">Kontrol gerektiren konu bulunmuyor.</div>
+            </xf:if>
+        </div>
+    </div>
+</div>

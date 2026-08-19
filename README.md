@@ -1,29 +1,48 @@
 # Warext Studios - Konu Güncellik Sistemi
 
-XenForo destek ve bilgi kategorilerindeki eski konuların topluluk tarafından güncellik açısından doğrulanmasını sağlayan eklenti.
+XenForo 2.3 için topluluk tabanlı konu ve çözüm güncellik doğrulama eklentisi.
 
-## Hedefler
+## Sürüm
 
-- Seçili forumlarda belirli süreyi aşan konular için güncellik doğrulaması
-- "Denedim, çalıştı" / "Denedim, çalışmadı" oylaması
-- Otomatik güncellik durumları ve rozetleri
-- Sürüm bazlı doğrulama
-- Olumsuz oy nedenleri
+**1.0.0 Stable**
+
+## Ana özellikler
+
+- Forum bazlı etkinleştirme ve bekleme süresi
+- Çalıştı / çalışmadı topluluk oylaması
+- Tek kullanıcı / tek oy ve oy değiştirme izni
+- Hesap yaşı ve mesaj sayısı koşulları
+- Sürüm bazlı doğrulama sonuçları
+- Güncel, muhtemelen güncel, kararsız, şüpheli, çalışmıyor, yeniden doğrulanıyor ve doğrulanmamış durumları
+- Eski oyları zamanla düşük ağırlıkla değerlendirme
+- Otomatik yeniden doğrulama
+- Konu listesi rozetleri ve durum filtreleri
 - Moderatör doğrulaması
-- Yeniden doğrulama döngüsü
-- Durum değişikliği bildirimleri
-- XenForo izin sistemi ve ACP ayarları
-- PHP 8.4 otomatik kontrolü
-- Durum hesaplama testleri
+- Kritik durum değişikliği bildirimleri ve web push
+- Güncel çözüm konusu yönlendirmesi
+- Güncel Çözümler arama sayfası
+- ACP içerik sağlığı ve kritik konu özeti
+- Eşzamanlı oy kilitleme
+- Orphan kayıt temizliği
+- PHP 8.4 otomatik testleri
+- Kurulabilir `_data` XML içeren release paketi
 
-## Güncel Geliştirme Durumu
+## Gereksinimler
 
-Alpha 6 ile Faz 3 tamamlandı. Konu ve liste rozetleri, filtreleme, moderatör doğrulaması, ayrı oy izinleri, yeniden doğrulama ve önemli durum değişikliklerinde konu sahibine XenForo uyarısı aktif durumdadır.
+- XenForo 2.3.0+
+- PHP 8.1+
 
-Oy ve moderatör işlemleri konu bazlı veritabanı kilidi ile seri hale getirilmiştir. Silinmiş konu ve kullanıcıların eklenti tablolarında bıraktığı artık kayıtlar günlük cron ile temizlenir.
+## Kurulum
 
-Normal dağıtım için `_data` XML dışa aktarımı ve nihai release ZIP henüz tamamlanmamıştır.
+GitHub Actions tarafından üretilen `Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip` paketini XenForo yönetim panelindeki arşivden eklenti kurma ekranından yükleyin.
 
-## Durum
+Kurulumdan sonra:
 
-Geliştirme aşamasındadır.
+1. Eklenti seçeneklerinden sistemi etkinleştirin.
+2. İlgili forumun düzenleme ekranından konu güncellik doğrulamasını açın.
+3. Forum için bekleme süresini ve gerekiyorsa sürüm listesini ayarlayın.
+4. Kullanıcı grubu izinlerinden oy, oy değiştirme, kendi konusuna oy ve moderatör doğrulama izinlerini yapılandırın.
+
+## Veri tabanı
+
+Manuel SQL içe aktarma gerekmez. Kurulum ve yükseltme işlemleri `Setup.php` üzerinden yürütülür.
