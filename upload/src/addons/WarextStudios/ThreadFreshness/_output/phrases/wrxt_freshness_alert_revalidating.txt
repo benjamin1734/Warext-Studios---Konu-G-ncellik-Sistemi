@@ -1,1 +1,0 @@
-"{title}" konunuz için yeniden doğrulama süreci başladı.

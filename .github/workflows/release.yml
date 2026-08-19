@@ -28,26 +28,27 @@ jobs:
       - run: php tests/revalidation.php
       - run: php tests/moderator_status.php
       - run: php tests/notification_status.php
+      - run: php tests/failure_reason.php
       - run: php tests/security_static.php
-      - run: php tools/build_data.php
+      - run: php tests/release_static.php
       - run: php tests/release_data.php
       - run: php tools/prepare_release.php
-      - run: cd build/release && zip -qr ../Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip .
-      - run: unzip -t build/Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip
+      - run: cd build/release && zip -qr ../Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip .
+      - run: unzip -t build/Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip
       - uses: actions/upload-artifact@v4
         with:
-          name: Warext-Studios-Konu-Guncellik-Sistemi-1.0.0
-          path: build/Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip
+          name: Warext-Studios-Konu-Guncellik-Sistemi-1.1.0
+          path: build/Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip
           if-no-files-found: error
       - name: Kurulabilir paketi repoda yayınla
         if: github.event_name == 'push'
         run: |
           mkdir -p releases
-          cp build/Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip releases/Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip
+          cp build/Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip releases/Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
-          git add releases/Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip
+          git add releases/Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip
           if ! git diff --cached --quiet; then
-            git commit -m '1.0.0 doğrulanmış release paketini yayınla [skip ci]'
+            git commit -m '1.1.0 doğrulanmış release paketini yayınla [skip ci]'
             git push
           fi

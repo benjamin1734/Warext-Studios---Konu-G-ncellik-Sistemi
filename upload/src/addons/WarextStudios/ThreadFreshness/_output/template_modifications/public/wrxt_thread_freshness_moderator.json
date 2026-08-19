@@ -1,9 +1,0 @@
-{
-    "template": "thread_view",
-    "description": "Konu güncellik moderatör doğrulama panelini ekler",
-    "execution_order": 20,
-    "enabled": true,
-    "action": "preg_replace",
-    "find": "#<xf:ad position=\"thread_view_below_messages\" arg-thread=\"\\{\\$thread\\}\" />#",
-    "replace": "<xf:if is=\"$thread.wrxtFreshnessCanModerate()\">\n\t<xf:set var=\"$wrxtModState\" value=\"{$thread.wrxtFreshnessGetState()}\" />\n\t<div class=\"block\" id=\"wrxt-thread-freshness-moderator\">\n\t\t<div class=\"block-container\">\n\t\t\t<h3 class=\"block-header\">Moderatör doğrulaması</h3>\n\t\t\t<div class=\"block-body\">\n\t\t\t\t<div class=\"block-row\">\n\t\t\t\t\t<xf:form action=\"{{ link('threads/freshness-moderate', $thread) }}\" ajax=\"true\">\n\t\t\t\t\t\t<xf:selectrow name=\"moderator_status\" label=\"Doğrulama durumu\" value=\"{{ $wrxtModState ? $wrxtModState.moderator_status : '' }}\">\n\t\t\t\t\t\t\t<xf:option value=\"\">Topluluk sonucunu kullan</xf:option>\n\t\t\t\t\t\t\t<xf:option value=\"current\">Moderatör doğruladı: güncel</xf:option>\n\t\t\t\t\t\t\t<xf:option value=\"review\">Moderatör: kontrol gerekli</xf:option>\n\t\t\t\t\t\t\t<xf:option value=\"not_working\">Moderatör doğruladı: çalışmıyor</xf:option>\n\t\t\t\t\t\t</xf:selectrow>\n\t\t\t\t\t\t<xf:submitrow submit=\"Kaydet\" />\n\t\t\t\t\t</xf:form>\n\t\t\t\t</div>\n\t\t\t</div>\n\t\t</div>\n\t</div>\n</xf:if>\n$0"
-}

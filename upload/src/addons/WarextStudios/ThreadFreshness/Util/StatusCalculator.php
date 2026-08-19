@@ -4,8 +4,53 @@ namespace WarextStudios\ThreadFreshness\Util;
 
 class StatusCalculator
 {
-    public static function calculate(array $votes, int $now): array
+    public static function defaults(): array
     {
+        return [
+            'likely_min_votes' => 3,
+            'likely_min_percent' => 75,
+            'current_min_votes' => 5,
+            'current_min_percent' => 80,
+            'questionable_min_votes' => 5,
+            'questionable_no_percent' => 70,
+            'not_working_min_votes' => 8,
+            'not_working_no_percent' => 80,
+            'mixed_min_votes' => 3,
+            'mixed_low_percent' => 40,
+            'mixed_high_percent' => 60
+        ];
+    }
+
+    public static function normalizeRules(array $rules): array
+    {
+        $rules = array_replace(self::defaults(), $rules);
+
+        foreach (['likely_min_votes', 'current_min_votes', 'questionable_min_votes', 'not_working_min_votes', 'mixed_min_votes'] as $key)
+        {
+            $rules[$key] = max(1, min(1000, (int)$rules[$key]));
+        }
+
+        foreach (['likely_min_percent', 'current_min_percent', 'questionable_no_percent', 'not_working_no_percent', 'mixed_low_percent', 'mixed_high_percent'] as $key)
+        {
+            $rules[$key] = max(0, min(100, (int)$rules[$key]));
+        }
+
+        if ($rules['mixed_low_percent'] > $rules['mixed_high_percent'])
+        {
+            [$rules['mixed_low_percent'], $rules['mixed_high_percent']] = [$rules['mixed_high_percent'], $rules['mixed_low_percent']];
+        }
+
+        $rules['current_min_votes'] = max($rules['current_min_votes'], $rules['likely_min_votes']);
+        $rules['current_min_percent'] = max($rules['current_min_percent'], $rules['likely_min_percent']);
+        $rules['not_working_min_votes'] = max($rules['not_working_min_votes'], $rules['questionable_min_votes']);
+        $rules['not_working_no_percent'] = max($rules['not_working_no_percent'], $rules['questionable_no_percent']);
+
+        return $rules;
+    }
+
+    public static function calculate(array $votes, int $now, array $rules = []): array
+    {
+        $rules = self::normalizeRules($rules);
         $positiveWeight = 0.0;
         $negativeWeight = 0.0;
         $positiveCount = 0;
@@ -39,25 +84,31 @@ class StatusCalculator
         $voteCount = $positiveCount + $negativeCount;
         $totalWeight = $positiveWeight + $negativeWeight;
         $score = $totalWeight > 0 ? $positiveWeight / $totalWeight : 0.0;
+        $yesPercent = $score * 100;
+        $noPercent = 100 - $yesPercent;
         $status = 'unverified';
 
-        if ($totalWeight >= 8.0 && $score <= 0.20)
+        if ($voteCount >= $rules['not_working_min_votes'] && $noPercent >= $rules['not_working_no_percent'])
         {
             $status = 'not_working';
         }
-        elseif ($totalWeight >= 5.0 && $score <= 0.30)
+        elseif ($voteCount >= $rules['questionable_min_votes'] && $noPercent >= $rules['questionable_no_percent'])
         {
             $status = 'questionable';
         }
-        elseif ($totalWeight >= 5.0 && $score >= 0.80)
+        elseif ($voteCount >= $rules['current_min_votes'] && $yesPercent >= $rules['current_min_percent'])
         {
             $status = 'current';
         }
-        elseif ($totalWeight >= 3.0 && $score >= 0.75)
+        elseif ($voteCount >= $rules['likely_min_votes'] && $yesPercent >= $rules['likely_min_percent'])
         {
             $status = 'likely_current';
         }
-        elseif ($totalWeight >= 3.0 && $score >= 0.40 && $score <= 0.60)
+        elseif (
+            $voteCount >= $rules['mixed_min_votes']
+            && $yesPercent >= $rules['mixed_low_percent']
+            && $yesPercent <= $rules['mixed_high_percent']
+        )
         {
             $status = 'mixed';
         }

@@ -17,6 +17,8 @@ class Forum extends XFCP_Forum
             $data->wrxt_freshness_enabled = $this->filter('wrxt_freshness_enabled', 'bool');
             $data->wrxt_freshness_days = max(1, min(3650, $this->filter('wrxt_freshness_days', 'uint')));
             $data->wrxt_freshness_versions = trim($this->filter('wrxt_freshness_versions', 'str'));
+            $ageMode = trim($this->filter('wrxt_freshness_age_mode', 'str'));
+            $data->wrxt_freshness_age_mode = in_array($ageMode, ['meaningful', 'last_post'], true) ? $ageMode : 'meaningful';
         });
     }
 }

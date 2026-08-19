@@ -11,12 +11,20 @@ class Forum extends XFCP_Forum
         $structure = parent::getStructure($structure);
         $structure->columns['wrxt_freshness_enabled'] = ['type' => self::BOOL, 'default' => false];
         $structure->columns['wrxt_freshness_days'] = ['type' => self::UINT, 'default' => 90, 'min' => 1, 'max' => 3650];
-        $structure->columns['wrxt_freshness_versions'] = ['type' => self::STR, 'default' => ''];
+        $structure->columns['wrxt_freshness_versions'] = ['type' => self::STR, 'default' => '', 'nullable' => true];
+        $structure->columns['wrxt_freshness_age_mode'] = ['type' => self::STR, 'default' => 'meaningful', 'maxLength' => 20];
 
         return $structure;
     }
 
-    public function wrxtFreshnessGetVersions(): array
+    public function getWrxtFreshnessAgeMode(): string
+    {
+        return in_array($this->wrxt_freshness_age_mode, ['meaningful', 'last_post'], true)
+            ? $this->wrxt_freshness_age_mode
+            : 'meaningful';
+    }
+
+    public function getWrxtFreshnessVersions(): array
     {
         $lines = preg_split('/\R/u', (string)$this->wrxt_freshness_versions) ?: [];
         $versions = [];

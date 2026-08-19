@@ -1,5 +1,47 @@
 # Değişiklik Günlüğü
 
+## 1.1.0
+
+- Konu yaş hesabına forum bazlı `Anlamlı güncelleme` ve `Her son mesaj` modları eklendi.
+- Anlamlı güncelleme tarihi konu sahibinin mesajları ve ilk mesaj düzenlemeleri üzerinden hesaplanır hale getirildi.
+- Yeni anlamlı güncellemeden önceki oylar yeni doğrulama döngüsünde hesaba katılmayacak şekilde düzeltildi.
+- Eski döngüde oy kullanmış kullanıcıların yeni doğrulama döngüsünde tekrar oy kullanabilmesi sağlandı.
+- Durum minimum eşikleri ham oy sayısına, yüzde hesabı zaman ağırlıklı oy skoruna bağlandı.
+- Durum hesaplama eşikleri ACP üzerinden değiştirilebilir hale getirildi.
+- Forum filtre şablonundaki hatalı string `replace` kullanımı `array_merge` ile düzeltildi.
+- Forum filtreleri moderatör override durumunu dikkate alacak şekilde düzeltildi.
+- State kaydı olmayan doğrulanmamış konular Güncel Çözümler aramasına dahil edildi.
+- Arama taraması izin ve dinamik güncellik kontrolleri için parçalı taramaya geçirildi.
+- Kendi konusuna oy verme ACP anahtarı gerçek izin kontrolüne bağlandı.
+- Olumsuz oy nedenleri backend tarafında whitelist doğrulamasına bağlandı.
+- Olumsuz oylara isteğe bağlı daha güncel konu önerisi eklendi.
+- Konu sahibi için topluluk sonucunu ezmeyen “hâlâ geçerli” bildirimi eklendi.
+- Eski state kayıtlarının yeni referans tarihle uyumsuz olması durumunda kullanıcıya eski statü gösterilmesi engellendi.
+- Sürüm, neden dağılımı ve son topluluk doğrulama tarihi konu paneline eklendi.
+- Güncel çözüm yönlendirmesi aynı konu, yönlendirme konusu, görünmeyen konu ve daha eski konu kontrolleriyle sertleştirildi.
+- ACP sağlık ekranına son olumsuz geri bildirimler ve alternatif çözüm önerisi sayısı eklendi.
+- Sağlık istatistikleri devre dışı forumlardaki eski state verilerini saymayacak şekilde düzeltildi.
+- Eski global forum-ID seçeneği stable yapıdan kaldırıldı.
+- Minimum hesap yaşı ve mesaj seçenekleri sayısal ACP alanlarına dönüştürüldü.
+- 1.1.0 yükseltme şeması ve otomatik yeniden hesaplama job'u eklendi.
+- XenForo 2.3.7+ salt-okunur template metot kısıtlamasına tam uyum için entity API adları `get/is/has/can` sözleşmesine taşındı.
+- Yeni anlamlı güncelleme geldiğinde eski moderatör override durumunun yeni doğrulama döngüsüne taşınması engellendi.
+- İlk hesaplamada yalnızca eski olumlu oyları bulunan konuların bir tur boyunca güncel görünmesi engellendi; doğrudan yeniden doğrulama uygulanır.
+- Soru türü konularda seçilmiş çözüm gönderisi de anlamlı güncelleme hesabına dahil edildi.
+- Forum durum filtresi state referans tarihi ve forum bekleme eşiğiyle birebir eşleştirildi; eski state'in yanlış filtre sonucuna girmesi engellendi.
+- ACP son olumsuz geri bildirim listesi yalnız etkin forumlar, uygun konular ve mevcut doğrulama döngüsündeki oylarla sınırlandırıldı.
+- ACP sağlık ekranına etkin forumlardaki görünür konu sayısı ayrı metrik olarak eklendi.
+- Eski regresyon testleri 1.1.0 kaynak paketine geri eklendi ve yeni güvenlik/uyumluluk testleriyle birlikte çalıştırılır hale getirildi.
+- Günlük yeniden hesaplama cron'u benzersiz job anahtarıyla kuyruğa alınarak aynı job'un üst üste birikmesi engellendi.
+- Orphan kullanıcı temizliği için moderatör ve replacement kullanıcı alanlarına indeks eklendi.
+- Yeni doğrulama döngüsünde eski oy alanlarının formda yeniden doldurulması engellendi.
+- Moderatör ve replacement yönetimi doğrulama yaş eşiğiyle aynı uygunluk kuralına bağlandı.
+- Durum eşikleri birbirleriyle çelişemeyecek şekilde normalize edildi.
+- Konu sahibi geçerlilik bildirimi stale state üzerinde çalışmadan önce state yeniden hesaplanır hale getirildi.
+- Genel konu listelerinde N+1 sorgu riskini kaldırmak için güncellik rozeti yalnız toplu preload yapılmış listelerde çalışacak şekilde sınırlandırıldı.
+- Güncel Çözümler arama girdisi 100 karakterle sınırlandırılarak gereksiz büyük LIKE sorguları engellendi.
+- Silinmiş kullanıcı oyları cleanup sırasında kaldırıldığında ilgili aggregate state anında stale işaretlenerek eski oy toplamının kullanıcıya geçerli sonuç gibi gösterilmesi engellendi.
+
 ## 1.0.0
 
 - Stable sürüm tamamlandı.

@@ -12,7 +12,14 @@ class Recalculate extends AbstractRebuildJob
 
         return $db->fetchAllColumn(
             $db->limit(
-                'SELECT thread_id FROM xf_wrxt_thread_freshness_state WHERE thread_id > ? ORDER BY thread_id',
+                "SELECT s.thread_id
+                FROM xf_wrxt_thread_freshness_state s
+                INNER JOIN xf_thread t ON t.thread_id = s.thread_id
+                INNER JOIN xf_forum f ON f.node_id = t.node_id
+                WHERE s.thread_id > ?
+                    AND t.discussion_state = 'visible'
+                    AND f.wrxt_freshness_enabled = 1
+                ORDER BY s.thread_id",
                 max(1, (int)$batch)
             ),
             (int)$start

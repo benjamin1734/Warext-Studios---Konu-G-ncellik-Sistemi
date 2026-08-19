@@ -9,6 +9,8 @@ class StatusLog extends Entity
 {
     protected function _preSave(): void
     {
+        parent::_preSave();
+
         if ($this->isInsert() && !$this->log_date)
         {
             $this->log_date = \XF::$time;

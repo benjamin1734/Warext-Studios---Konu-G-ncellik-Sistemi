@@ -4,28 +4,36 @@ XenForo 2.3 için topluluk tabanlı konu ve çözüm güncellik doğrulama eklen
 
 ## Sürüm
 
-**1.0.0 Stable**
+**1.1.0 Stable**
 
 ## Ana özellikler
 
 - Forum bazlı etkinleştirme ve bekleme süresi
+- Forum başına `Anlamlı güncelleme` veya `Her son mesaj` yaş hesabı
+- Anlamlı güncellemede konu sahibinin mesajları, ilk mesaj düzenlemeleri ve seçilmiş soru çözüm gönderisini esas alma
 - Çalıştı / çalışmadı topluluk oylaması
-- Tek kullanıcı / tek oy ve oy değiştirme izni
+- Tek kullanıcı / tek oy, oy değiştirme ve yeni doğrulama döngüsünde yeniden oy kullanma
 - Hesap yaşı ve mesaj sayısı koşulları
+- Kendi konusuna oy için hem ACP anahtarı hem kullanıcı grubu izni
 - Sürüm bazlı doğrulama sonuçları
+- Olumsuz oy nedenleri ve neden dağılımı
+- Seçilebilir güncel alternatif konu önerisi
+- Konu sahibinin bağlayıcı olmayan “hâlâ geçerli” bildirimi
 - Güncel, muhtemelen güncel, kararsız, şüpheli, çalışmıyor, yeniden doğrulanıyor ve doğrulanmamış durumları
+- Ham oy sayısı + zaman ağırlıklı yüzde kullanan durum motoru
+- ACP üzerinden değiştirilebilir durum eşikleri
 - Eski oyları zamanla düşük ağırlıkla değerlendirme
 - Otomatik yeniden doğrulama
 - Konu listesi rozetleri ve durum filtreleri
-- Moderatör doğrulaması
+- Moderatör doğrulaması ve topluluk sonucuna geri dönüş
 - Kritik durum değişikliği bildirimleri ve web push
 - Güncel çözüm konusu yönlendirmesi
 - Güncel Çözümler arama sayfası
-- ACP içerik sağlığı ve kritik konu özeti
+- ACP içerik sağlığı, kritik konu ve son olumsuz geri bildirim özeti
 - Eşzamanlı oy kilitleme
 - Orphan kayıt temizliği
 - PHP 8.4 otomatik testleri
-- Kurulabilir `_data` XML içeren release paketi
+- Kurulabilir `_data` XML ve `hashes.json` içeren release paketi
 
 ## Gereksinimler
 
@@ -34,15 +42,20 @@ XenForo 2.3 için topluluk tabanlı konu ve çözüm güncellik doğrulama eklen
 
 ## Kurulum
 
-GitHub Actions tarafından üretilen `Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip` paketini XenForo yönetim panelindeki arşivden eklenti kurma ekranından yükleyin.
+`Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip` paketini XenForo yönetim panelindeki arşivden eklenti kurma/yükseltme ekranından yükleyin.
 
 Kurulumdan sonra:
 
 1. Eklenti seçeneklerinden sistemi etkinleştirin.
-2. İlgili forumun düzenleme ekranından konu güncellik doğrulamasını açın.
-3. Forum için bekleme süresini ve gerekiyorsa sürüm listesini ayarlayın.
-4. Kullanıcı grubu izinlerinden oy, oy değiştirme, kendi konusuna oy ve moderatör doğrulama izinlerini yapılandırın.
+2. Kullanıcı grubu izinlerinden oy, oy değiştirme, kendi konusuna oy ve moderatör doğrulama izinlerini yapılandırın.
+3. İlgili forumun düzenleme ekranından güncellik doğrulamasını açın.
+4. Forum için bekleme süresini, yaş hesabı yöntemini ve gerekiyorsa sürüm listesini ayarlayın.
+5. Gerekiyorsa durum hesaplama eşiklerini ACP seçeneklerinden özelleştirin.
+
+## Yükseltme
+
+1.0.0 sürümünden 1.1.0'a yükseltmede yeni kolonlar `Setup.php` tarafından eklenir ve mevcut state kayıtları yeniden hesaplama job'una alınır.
 
 ## Veri tabanı
 
-Manuel SQL içe aktarma gerekmez. Kurulum ve yükseltme işlemleri `Setup.php` üzerinden yürütülür.
+Manuel SQL içe aktarma gerekmez. Kurulum, yükseltme ve kaldırma şema işlemleri `Setup.php` üzerinden yürütülür.

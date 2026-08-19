@@ -1,1 +1,0 @@
-"{title}" konunuz topluluk doğrulamasına göre artık çalışmıyor durumuna geçti.

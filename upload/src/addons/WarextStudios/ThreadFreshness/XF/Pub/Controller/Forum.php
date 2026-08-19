@@ -18,7 +18,7 @@ class Forum extends XFCP_Forum
             $forum = $reply->getParam('forum');
             if ($forum && $forum->wrxt_freshness_enabled)
             {
-                $this->repository('WarextStudios\ThreadFreshness:ThreadFreshness')->preloadStatesForThreads(
+                $this->repository('WarextStudios\ThreadFreshness:ThreadFreshness')->preloadThreadData(
                     $reply->getParam('threads'),
                     $reply->getParam('stickyThreads')
                 );
@@ -64,15 +64,87 @@ class Forum extends XFCP_Forum
         $status = $filters['freshness_status'];
         $threadFinder->with('WrxtFreshnessState', false);
 
+        $stateThreadId = $threadFinder->columnSqlName('WrxtFreshnessState.thread_id');
+        $stateReference = $threadFinder->columnSqlName('WrxtFreshnessState.reference_date');
+        $stateModerator = $threadFinder->columnSqlName('WrxtFreshnessState.moderator_status');
+        $stateCalculated = $threadFinder->columnSqlName('WrxtFreshnessState.last_calculated_date');
+        $stateStatus = $threadFinder->columnSqlName('WrxtFreshnessState.status');
+        $threadId = $threadFinder->columnSqlName('thread_id');
+        $threadUserId = $threadFinder->columnSqlName('user_id');
+        $firstPostId = $threadFinder->columnSqlName('first_post_id');
+        $lastPostDate = $threadFinder->columnSqlName('last_post_date');
+
+        if ($forum->getWrxtFreshnessAgeMode() === 'meaningful')
+        {
+            $referenceSql = "COALESCE((
+                SELECT MAX(GREATEST(wp.post_date, wp.last_edit_date))
+                FROM xf_post wp
+                LEFT JOIN xf_thread_question wtq ON wtq.thread_id = wp.thread_id
+                WHERE wp.thread_id = {$threadId}
+                    AND wp.message_state = 'visible'
+                    AND (
+                        wp.post_id = {$firstPostId}
+                        OR ({$threadUserId} > 0 AND wp.user_id = {$threadUserId})
+                        OR (wtq.solution_post_id > 0 AND wp.post_id = wtq.solution_post_id)
+                    )
+            ), {$lastPostDate})";
+        }
+        else
+        {
+            $referenceSql = $lastPostDate;
+        }
+
+        $cutoff = \XF::$time - (max(1, (int)$forum->wrxt_freshness_days) * 86400);
+        $threadFinder->whereSql("{$referenceSql} <= " . (int)$cutoff);
+
         if ($status === 'unverified')
         {
-            $threadFinder->whereOr(
-                ['WrxtFreshnessState.status', '=', 'unverified'],
-                ['WrxtFreshnessState.thread_id', '=', null]
+            $threadFinder->whereSql(
+                "({$stateThreadId} IS NULL OR {$stateReference} <> {$referenceSql} OR {$stateCalculated} < {$referenceSql} OR ({$stateModerator} = '' AND {$stateStatus} = 'unverified'))"
             );
             return;
         }
 
-        $threadFinder->where('WrxtFreshnessState.status', $status);
+        $threadFinder->whereSql("{$stateReference} = {$referenceSql} AND {$stateCalculated} >= {$referenceSql}");
+
+        if ($status === 'current')
+        {
+            $threadFinder->whereOr(
+                ['WrxtFreshnessState.moderator_status', '=', 'current'],
+                [
+                    ['WrxtFreshnessState.moderator_status', '=', ''],
+                    ['WrxtFreshnessState.status', '=', 'current']
+                ]
+            );
+            return;
+        }
+
+        if ($status === 'questionable')
+        {
+            $threadFinder->whereOr(
+                ['WrxtFreshnessState.moderator_status', '=', 'review'],
+                [
+                    ['WrxtFreshnessState.moderator_status', '=', ''],
+                    ['WrxtFreshnessState.status', '=', 'questionable']
+                ]
+            );
+            return;
+        }
+
+        if ($status === 'not_working')
+        {
+            $threadFinder->whereOr(
+                ['WrxtFreshnessState.moderator_status', '=', 'not_working'],
+                [
+                    ['WrxtFreshnessState.moderator_status', '=', ''],
+                    ['WrxtFreshnessState.status', '=', 'not_working']
+                ]
+            );
+            return;
+        }
+
+        $threadFinder
+            ->where('WrxtFreshnessState.moderator_status', '')
+            ->where('WrxtFreshnessState.status', $status);
     }
 }

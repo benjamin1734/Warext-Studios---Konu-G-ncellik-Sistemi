@@ -37,7 +37,7 @@ class Moderate extends AbstractService
         {
             throw new \LogicException('Thread and user must exist');
         }
-        if (!$this->thread->wrxtFreshnessCanModerate())
+        if (!$this->thread->canWrxtFreshnessModerate())
         {
             throw new \LogicException('Permission denied');
         }
@@ -51,8 +51,17 @@ class Moderate extends AbstractService
         return $repository->withThreadLock((int)$this->thread->thread_id, function() use ($repository)
         {
             $state = $repository->getOrCreateState((int)$this->thread->thread_id);
-            $oldStatus = $repository->getEffectiveStatus($state);
+            $referenceDate = (int)$this->thread->getWrxtFreshnessReferenceDate();
+            if ((int)$state->reference_date !== $referenceDate || (int)$state->last_calculated_date < $referenceDate)
+            {
+                $state = $repository->recalculateThread(
+                    (int)$this->thread->thread_id,
+                    'moderator_prepare',
+                    (int)$this->user->user_id
+                );
+            }
 
+            $oldStatus = $repository->getEffectiveStatus($state);
             $state->moderator_status = $this->status;
             $state->moderator_user_id = $this->status === '' ? 0 : (int)$this->user->user_id;
             $state->moderator_date = $this->status === '' ? 0 : \XF::$time;

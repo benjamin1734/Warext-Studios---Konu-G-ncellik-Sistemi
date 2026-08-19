@@ -4,7 +4,7 @@ namespace WarextStudios\ThreadFreshness\Util;
 
 class VersionSummary
 {
-    public static function summarize(array $votes, int $now, int $limit = 8): array
+    public static function summarize(array $votes, int $now, int $limit = 8, array $rules = []): array
     {
         $groups = [];
 
@@ -35,7 +35,7 @@ class VersionSummary
 
         foreach ($groups as $group)
         {
-            $result = StatusCalculator::calculate($group['votes'], $now);
+            $result = StatusCalculator::calculate($group['votes'], $now, $rules);
             $result['version'] = $group['version'];
             $result['total_weight'] = (float)$result['positive_weight'] + (float)$result['negative_weight'];
             $summary[] = $result;

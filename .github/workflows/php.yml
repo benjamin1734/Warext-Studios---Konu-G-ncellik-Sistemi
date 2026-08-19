@@ -20,6 +20,7 @@ jobs:
       - run: php tests/revalidation.php
       - run: php tests/moderator_status.php
       - run: php tests/notification_status.php
+      - run: php tests/failure_reason.php
       - run: php tests/security_static.php
-      - run: php tools/build_data.php
+      - run: php tests/release_static.php
       - run: php tests/release_data.php

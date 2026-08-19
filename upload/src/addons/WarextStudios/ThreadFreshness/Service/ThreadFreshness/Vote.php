@@ -2,6 +2,7 @@
 
 namespace WarextStudios\ThreadFreshness\Service\ThreadFreshness;
 
+use WarextStudios\ThreadFreshness\Util\FailureReason;
 use XF\Entity\Thread;
 use XF\Entity\User;
 use XF\Service\AbstractService;
@@ -14,6 +15,7 @@ class Vote extends AbstractService
     protected string $reason = '';
     protected string $version = '';
     protected string $message = '';
+    protected int $alternativeThreadId = 0;
 
     public function __construct(\XF\App $app, Thread $thread, User $user)
     {
@@ -33,7 +35,12 @@ class Vote extends AbstractService
 
     public function setReason(string $reason): void
     {
-        $this->reason = mb_substr(trim($reason), 0, 64);
+        $reason = trim($reason);
+        if (!FailureReason::isValid($reason))
+        {
+            throw new \InvalidArgumentException('Invalid reason');
+        }
+        $this->reason = $reason;
     }
 
     public function setVersion(string $version): void
@@ -46,6 +53,11 @@ class Vote extends AbstractService
         $this->message = mb_substr(trim($message), 0, 500);
     }
 
+    public function setAlternativeThreadId(int $threadId): void
+    {
+        $this->alternativeThreadId = max(0, $threadId);
+    }
+
     public function save()
     {
         if (!$this->thread->thread_id || !$this->user->user_id)
@@ -56,7 +68,7 @@ class Vote extends AbstractService
         {
             throw new \LogicException('Vote is required');
         }
-        if (!$this->thread->wrxtFreshnessCanVote())
+        if (!$this->thread->canWrxtFreshnessVote())
         {
             throw new \LogicException('Permission denied');
         }
@@ -64,12 +76,24 @@ class Vote extends AbstractService
         {
             throw new \LogicException('Permission denied');
         }
-        if (
-            (int)$this->thread->user_id === (int)$this->user->user_id
-            && !$this->user->hasPermission('wrxtFreshness', 'voteOwn')
-        )
+
+        $ownThread = (int)$this->thread->user_id === (int)$this->user->user_id;
+        if ($ownThread && !(
+            (bool)(\XF::options()->wrxtFreshnessAllowOwnThread ?? false)
+            && $this->user->hasPermission('wrxtFreshness', 'voteOwn')
+        ))
         {
             throw new \LogicException('Permission denied');
+        }
+
+        if ($this->vote === 1)
+        {
+            $this->reason = '';
+            $this->alternativeThreadId = 0;
+        }
+        else
+        {
+            $this->assertAlternativeThreadIsValid();
         }
 
         $repository = $this->repository();
@@ -82,12 +106,16 @@ class Vote extends AbstractService
                 ->where('user_id', $this->user->user_id)
                 ->fetchOne();
 
-            if ($entity && !$this->user->hasPermission('wrxtFreshness', 'changeVote'))
+            if ($entity)
             {
-                throw new \LogicException('Permission denied');
+                $voteDate = max((int)$entity->vote_date, (int)$entity->updated_date);
+                $isStaleCycleVote = $voteDate < (int)$this->thread->getWrxtFreshnessReferenceDate();
+                if (!$isStaleCycleVote && !$this->user->hasPermission('wrxtFreshness', 'changeVote'))
+                {
+                    throw new \LogicException('Permission denied');
+                }
             }
-
-            if (!$entity)
+            else
             {
                 $entity = $em->create('WarextStudios\ThreadFreshness:Vote');
                 $entity->thread_id = $this->thread->thread_id;
@@ -98,6 +126,7 @@ class Vote extends AbstractService
             $entity->reason = $this->reason;
             $entity->version = $this->version;
             $entity->message = $this->message;
+            $entity->alternative_thread_id = $this->alternativeThreadId;
             $entity->save();
 
             $repository->recalculateThread(
@@ -108,6 +137,31 @@ class Vote extends AbstractService
 
             return $entity;
         });
+    }
+
+    protected function assertAlternativeThreadIsValid(): void
+    {
+        if ($this->alternativeThreadId === 0)
+        {
+            return;
+        }
+
+        if ($this->alternativeThreadId === (int)$this->thread->thread_id)
+        {
+            throw new \InvalidArgumentException('Invalid alternative thread');
+        }
+
+        $alternative = $this->app->em()->find('XF:Thread', $this->alternativeThreadId);
+        if (
+            !$alternative
+            || $alternative->discussion_state !== 'visible'
+            || $alternative->discussion_type === 'redirect'
+            || !$alternative->canView()
+            || (int)$alternative->post_date < (int)$this->thread->post_date
+        )
+        {
+            throw new \InvalidArgumentException('Invalid alternative thread');
+        }
     }
 
     protected function repository(): \WarextStudios\ThreadFreshness\Repository\ThreadFreshness
