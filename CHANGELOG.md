@@ -1,18 +1,29 @@
 # Değişiklik Günlüğü
 
+## 1.0.0 Alpha 4
+
+- Forum bazlı etkinleştirme doğrudan forum düzenleme ekranına taşındı.
+- Forum başına bekleme süresi eklendi.
+- Forum başına izin verilen sürüm listesi eklendi.
+- Sürüm bazlı oy sonucu hesaplama eklendi.
+- Eski Alpha 3 forum ID ayarları için geçiş adımı eklendi.
+- Yeniden doğrulama durumu ve süresi eklendi.
+- Günlük yeniden hesaplama cron girdisi eklendi.
+- Oy tablosuna thread + version indeksi eklendi.
+- Sürüm ve yeniden doğrulama testleri eklendi.
+- Konu paneline durum etiketleri ve sürüm bazlı sonuçlar eklendi.
+
 ## 1.0.0 Alpha 3
 
-- Seçili forumlarda çalışma ve bekleme süresi seçenekleri eklendi.
-- Minimum hesap yaşı ve mesaj şartları eklendi.
-- Kendi konusuna oy verme seçeneği eklendi.
-- XenForo kullanıcı izni ile oy kontrolü eklendi.
-- XenForo Thread entity ve public Thread controller uzantıları eklendi.
-- Konu sayfasına güncellik doğrulama paneli eklendi.
-- Çalıştı ve çalışmadı oy endpoint'i eklendi.
-- Sürüm, olumsuz oy nedeni ve kısa açıklama girişi eklendi.
-- Olumsuz oy nedenleri doğrulama listesi ile sınırlandırıldı.
-- Konu ve ziyaretçi uygunluk testleri eklendi.
-- XenForo geliştirme verileri `_output` altında oluşturuldu.
+- Seçili forum aktivasyonu eklendi.
+- Bekleme süresi eklendi.
+- XenForo oy izni eklendi.
+- Minimum hesap yaşı ve mesaj şartı eklendi.
+- Kendi konusuna oy verme ayarı eklendi.
+- Konu sayfası doğrulama paneli eklendi.
+- Oy endpoint'i eklendi.
+- Olumsuz oy nedenleri eklendi.
+- Sürüm bilgisi kaydı eklendi.
 
 ## 1.0.0 Alpha 2
 

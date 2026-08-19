@@ -2,21 +2,13 @@
 
 namespace WarextStudios\ThreadFreshness\Service\ThreadFreshness;
 
+use WarextStudios\ThreadFreshness\Util\VersionSummary;
 use XF\Entity\Thread;
 use XF\Entity\User;
 use XF\Service\AbstractService;
 
 class Vote extends AbstractService
 {
-    protected const REASONS = [
-        'outdated_version',
-        'dead_links',
-        'method_invalid',
-        'incomplete',
-        'did_not_work',
-        'other'
-    ];
-
     protected Thread $thread;
     protected User $user;
     protected int $vote = 0;
@@ -39,20 +31,24 @@ class Vote extends AbstractService
         }
 
         $this->vote = $vote;
-
-        if ($vote === 1)
-        {
-            $this->reason = '';
-        }
     }
 
     public function setReason(string $reason): void
     {
         $reason = trim($reason);
+        $allowed = [
+            '',
+            'outdated_version',
+            'dead_links',
+            'method_invalid',
+            'incomplete',
+            'did_not_work',
+            'other'
+        ];
 
-        if ($reason !== '' && !in_array($reason, self::REASONS, true))
+        if (!in_array($reason, $allowed, true))
         {
-            $reason = '';
+            throw new \InvalidArgumentException('Invalid reason');
         }
 
         $this->reason = $reason;
@@ -60,7 +56,7 @@ class Vote extends AbstractService
 
     public function setVersion(string $version): void
     {
-        $this->version = mb_substr(trim($version), 0, 100);
+        $this->version = VersionSummary::clean($version);
     }
 
     public function setMessage(string $message): void
@@ -80,6 +76,12 @@ class Vote extends AbstractService
             throw new \LogicException('Vote is required');
         }
 
+        $configuredVersions = $this->thread->wrxtFreshnessGetConfiguredVersions();
+        if ($configuredVersions && !in_array($this->version, $configuredVersions, true))
+        {
+            throw new \LogicException('Invalid version');
+        }
+
         $em = $this->app->em();
         $entity = $this->app->finder('WarextStudios\ThreadFreshness:Vote')
             ->where('thread_id', $this->thread->thread_id)
@@ -94,16 +96,12 @@ class Vote extends AbstractService
         }
 
         $entity->vote = $this->vote;
-        $entity->reason = $this->vote === -1 ? $this->reason : '';
+        $entity->reason = $this->reason;
         $entity->version = $this->version;
         $entity->message = $this->message;
         $entity->save();
 
-        $this->repository()->recalculateThread(
-            $this->thread->thread_id,
-            'vote',
-            $this->user->user_id
-        );
+        $this->repository()->recalculateThread($this->thread->thread_id, 'vote', $this->user->user_id);
 
         return $entity;
     }

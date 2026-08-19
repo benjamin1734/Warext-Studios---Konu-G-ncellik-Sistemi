@@ -19,5 +19,11 @@
     },
     "permission.wrxtFreshness_vote.txt": {
         "hash": "daa670e58551faea634e0319dddc0e9c"
+    },
+    "option.wrxtFreshnessRevalidateDays.txt": {
+        "hash": "7b3d801f882dfdecc0211cb225d484d3"
+    },
+    "cron_entry.wrxtFreshnessRecalculate.txt": {
+        "hash": "552551fcb5303216863c8e26d2cc50f9"
     }
 }

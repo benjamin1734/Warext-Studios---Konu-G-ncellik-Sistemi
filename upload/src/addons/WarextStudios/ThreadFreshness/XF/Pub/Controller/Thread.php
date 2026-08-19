@@ -34,6 +34,12 @@ class Thread extends XFCP_Thread
             $input['reason'] = '';
         }
 
+        $configuredVersions = $thread->wrxtFreshnessGetConfiguredVersions();
+        if ($configuredVersions && !in_array(trim($input['version']), $configuredVersions, true))
+        {
+            return $this->error('Geçerli bir sürüm seçmelisiniz.');
+        }
+
         $service = $this->service(
             'WarextStudios\ThreadFreshness:ThreadFreshness\Vote',
             $thread,

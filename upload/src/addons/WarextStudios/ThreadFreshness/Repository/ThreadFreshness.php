@@ -3,7 +3,9 @@
 namespace WarextStudios\ThreadFreshness\Repository;
 
 use WarextStudios\ThreadFreshness\Entity\ThreadState;
+use WarextStudios\ThreadFreshness\Util\Revalidation;
 use WarextStudios\ThreadFreshness\Util\StatusCalculator;
+use WarextStudios\ThreadFreshness\Util\VersionSummary;
 use XF\Mvc\Entity\Repository;
 
 class ThreadFreshness extends Repository
@@ -33,6 +35,22 @@ class ThreadFreshness extends Repository
         return $state;
     }
 
+    public function getVersionSummaryForThread(int $threadId, int $limit = 8): array
+    {
+        $votes = [];
+
+        foreach ($this->findVotesForThread($threadId)->fetch() as $vote)
+        {
+            $votes[] = [
+                'vote' => (int)$vote->vote,
+                'vote_date' => max((int)$vote->vote_date, (int)$vote->updated_date),
+                'version' => (string)$vote->version
+            ];
+        }
+
+        return VersionSummary::summarize($votes, \XF::$time, $limit);
+    }
+
     public function recalculateThread(int $threadId, string $triggerType = 'system', int $userId = 0): ThreadState
     {
         $votes = [];
@@ -47,13 +65,31 @@ class ThreadFreshness extends Repository
         $result = StatusCalculator::calculate($votes, \XF::$time);
         $state = $this->getOrCreateState($threadId);
         $oldStatus = $state->exists() ? $state->status : '';
+        $lastVerifiedDate = (int)$state->last_verified_date;
+        $revalidateDays = max(1, (int)(\XF::options()->wrxtFreshnessRevalidateDays ?? 180));
+
+        if (Revalidation::shouldRevalidate(
+            $result['status'],
+            $lastVerifiedDate,
+            (int)$result['last_vote_date'],
+            $revalidateDays,
+            \XF::$time
+        ))
+        {
+            $result['status'] = 'revalidating';
+        }
 
         $state->bulkSet($result);
         $state->last_calculated_date = \XF::$time;
-        if (in_array($result['status'], ['current', 'likely_current'], true) && $result['last_vote_date'] > 0)
+
+        if (
+            in_array($result['status'], ['current', 'likely_current'], true)
+            && $result['last_vote_date'] > $lastVerifiedDate
+        )
         {
             $state->last_verified_date = $result['last_vote_date'];
         }
+
         $state->save();
 
         if ($oldStatus !== $state->status)

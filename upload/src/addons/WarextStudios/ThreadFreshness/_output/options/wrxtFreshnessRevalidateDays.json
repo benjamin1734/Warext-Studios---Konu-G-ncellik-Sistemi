@@ -1,0 +1,13 @@
+{
+    "edit_format": "spinbox",
+    "edit_format_params": "min=30\nmax=3650\nstep=1\nunits={{ phrase('units_days') }}",
+    "data_type": "uint",
+    "sub_options": [],
+    "validation_class": "",
+    "validation_method": "",
+    "advanced": false,
+    "default_value": "180",
+    "relations": {
+        "wrxtThreadFreshness": 160
+    }
+}

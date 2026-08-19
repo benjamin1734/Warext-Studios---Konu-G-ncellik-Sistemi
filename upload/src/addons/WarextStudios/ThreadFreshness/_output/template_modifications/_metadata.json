@@ -1,5 +1,8 @@
 {
+    "admin/wrxt_thread_freshness_forum_edit.json": {
+        "hash": "2df7d655bbb69f8efeb4a7c66d92b1f2"
+    },
     "public/wrxt_thread_freshness_thread_view.json": {
-        "hash": "e7330268971f16c12b73634b31caac29"
+        "hash": "74a23a3e152e27453266baeea73c2297"
     }
 }

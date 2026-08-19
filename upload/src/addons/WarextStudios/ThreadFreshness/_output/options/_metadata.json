@@ -13,5 +13,8 @@
     },
     "wrxtFreshnessAllowOwnThread.json": {
         "hash": "7626cf41d9ecbba808c3ab01891fad81"
+    },
+    "wrxtFreshnessRevalidateDays.json": {
+        "hash": "221d384dcf46452687f91cbc53621d28"
     }
 }

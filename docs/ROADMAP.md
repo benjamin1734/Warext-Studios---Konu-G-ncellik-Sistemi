@@ -15,16 +15,19 @@
 - [x] Oy endpoint'i
 - [x] XenForo oy izni
 - [x] Forum bazlı aktivasyon
-- [x] Bekleme süresi
+- [x] Forum düzenleme ekranından aktivasyon
+- [x] Forum bazlı bekleme süresi
 - [x] Olumsuz oy nedeni
-- [ ] Sürüm bazlı ayrı sonuç hesaplama
-- [ ] Forum seçimini görsel node seçiciye dönüştürme
+- [x] Sürüm bazlı ayrı sonuç hesaplama
+- [x] Forum bazlı izin verilen sürüm listesi
 
 ## Faz 3
-- [ ] Durum rozetleri
+- [x] Konu paneli durum rozetleri
+- [x] Yeniden doğrulama döngüsü
+- [x] Otomatik yeniden hesaplama cron'u
+- [ ] Konu listesi durum rozetleri
 - [ ] Liste filtreleri
 - [ ] Moderatör doğrulaması
-- [ ] Yeniden doğrulama döngüsü
 - [ ] Bildirimler
 - [ ] Oy değiştirme iznini ayrılaştırma
 - [ ] Kendi konusuna oy iznini ayrılaştırma

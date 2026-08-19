@@ -8,6 +8,8 @@ use XF\Mvc\Entity\Structure;
 
 class Thread extends XFCP_Thread
 {
+    protected ?array $wrxtFreshnessVersionSummary = null;
+
     public static function getStructure(Structure $structure): Structure
     {
         $structure = parent::getStructure($structure);
@@ -25,23 +27,27 @@ class Thread extends XFCP_Thread
     public function wrxtFreshnessIsEnabled(): bool
     {
         $general = (array)(\XF::options()->wrxtFreshnessGeneral ?? []);
-        $enabled = !empty($general['enabled']);
-        $forumIds = Eligibility::parseForumIds((string)(\XF::options()->wrxtFreshnessForumIds ?? ''));
+        if (empty($general['enabled']) || !$this->Forum)
+        {
+            return false;
+        }
 
-        return $enabled && in_array((int)$this->node_id, $forumIds, true);
+        return (bool)$this->Forum->wrxt_freshness_enabled;
     }
 
     public function wrxtFreshnessIsEligible(): bool
     {
-        $general = (array)(\XF::options()->wrxtFreshnessGeneral ?? []);
-        $forumIds = Eligibility::parseForumIds((string)(\XF::options()->wrxtFreshnessForumIds ?? ''));
+        if (!$this->wrxtFreshnessIsEnabled())
+        {
+            return false;
+        }
 
         return Eligibility::isThreadEligible(
-            !empty($general['enabled']),
+            true,
             (int)$this->node_id,
             (int)$this->last_post_date,
-            $forumIds,
-            (int)($general['days'] ?? 90),
+            [(int)$this->node_id],
+            (int)$this->Forum->wrxt_freshness_days,
             \XF::$time
         );
     }
@@ -71,6 +77,23 @@ class Thread extends XFCP_Thread
     public function wrxtFreshnessGetState(): ?ThreadState
     {
         return $this->WrxtFreshnessState;
+    }
+
+    public function wrxtFreshnessGetConfiguredVersions(): array
+    {
+        return $this->Forum ? $this->Forum->wrxtFreshnessGetVersions() : [];
+    }
+
+    public function wrxtFreshnessGetVersionSummary(): array
+    {
+        if ($this->wrxtFreshnessVersionSummary === null)
+        {
+            $this->wrxtFreshnessVersionSummary = $this->repository(
+                'WarextStudios\ThreadFreshness:ThreadFreshness'
+            )->getVersionSummaryForThread((int)$this->thread_id);
+        }
+
+        return $this->wrxtFreshnessVersionSummary;
     }
 
     public function wrxtFreshnessGetVisitorVote(): int
