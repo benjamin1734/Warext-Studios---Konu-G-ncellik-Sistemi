@@ -19,6 +19,8 @@ XenForo destek ve bilgi kategorilerindeki eski konuların topluluk tarafından g
 
 Alpha 3 çekirdeğinde forum bazlı aktivasyon, bekleme süresi, oy izni, kullanıcı uygunluk kontrolleri, konu sayfası doğrulama paneli, oy endpoint'i, sürüm alanı ve olumsuz oy nedenleri bulunur.
 
+Yerel doğrulamada PHP 8.4 syntax kontrolü, durum hesaplama testleri ve konu/ziyaretçi uygunluk testleri başarıyla geçmiştir.
+
 Normal dağıtım için `_data` XML dışa aktarımı ve nihai release ZIP henüz tamamlanmamıştır.
 
 ## Durum
