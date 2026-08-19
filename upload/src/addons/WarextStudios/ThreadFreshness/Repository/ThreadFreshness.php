@@ -36,6 +36,34 @@ class ThreadFreshness extends Repository
         return $state;
     }
 
+    public function withThreadLock(int $threadId, callable $callback)
+    {
+        $db = $this->db();
+        $db->beginTransaction();
+
+        try
+        {
+            $db->query(
+                'INSERT IGNORE INTO xf_wrxt_thread_freshness_state (thread_id) VALUES (?)',
+                $threadId
+            );
+            $db->query(
+                'SELECT thread_id FROM xf_wrxt_thread_freshness_state WHERE thread_id = ? FOR UPDATE',
+                $threadId
+            );
+
+            $result = $callback();
+            $db->commit();
+
+            return $result;
+        }
+        catch (\Throwable $e)
+        {
+            $db->rollback();
+            throw $e;
+        }
+    }
+
     public function preloadStatesForThreads($threads, $stickyThreads = null): void
     {
         $ids = [];
@@ -113,6 +141,19 @@ class ThreadFreshness extends Repository
         $log->save();
     }
 
+    public function notifyStatusChange(
+        int $threadId,
+        string $oldStatus,
+        string $newStatus,
+        string $triggerType,
+        int $userId = 0
+    ): void
+    {
+        $this->app->service(
+            'WarextStudios\ThreadFreshness:ThreadFreshness\Notifier'
+        )->notify($threadId, $oldStatus, $newStatus, $triggerType, $userId);
+    }
+
     public function recalculateThread(int $threadId, string $triggerType = 'system', int $userId = 0): ThreadState
     {
         $votes = [];
@@ -126,7 +167,7 @@ class ThreadFreshness extends Repository
 
         $result = StatusCalculator::calculate($votes, \XF::$time);
         $state = $this->getOrCreateState($threadId);
-        $oldStatus = $state->exists() ? (string)$state->status : '';
+        $oldStatus = $this->getEffectiveStatus($state);
         $lastVerifiedDate = (int)$state->last_verified_date;
         $revalidateDays = max(1, (int)(\XF::options()->wrxtFreshnessRevalidateDays ?? 180));
 
@@ -153,8 +194,54 @@ class ThreadFreshness extends Repository
         }
 
         $state->save();
-        $this->logStatusChange($threadId, $oldStatus, (string)$state->status, $triggerType, $userId);
+
+        $newStatus = $this->getEffectiveStatus($state);
+        $this->logStatusChange($threadId, $oldStatus, $newStatus, $triggerType, $userId);
+        $this->notifyStatusChange($threadId, $oldStatus, $newStatus, $triggerType, $userId);
 
         return $state;
+    }
+
+    public function recalculateThreadSafely(
+        int $threadId,
+        string $triggerType = 'system',
+        int $userId = 0
+    ): ThreadState
+    {
+        return $this->withThreadLock(
+            $threadId,
+            fn() => $this->recalculateThread($threadId, $triggerType, $userId)
+        );
+    }
+
+    public function cleanupOrphans(int $limit = 1000): void
+    {
+        $limit = max(1, min(5000, $limit));
+        $db = $this->db();
+
+        $db->query(
+            "DELETE v
+            FROM xf_wrxt_thread_freshness_vote v
+            LEFT JOIN xf_thread t ON t.thread_id = v.thread_id
+            LEFT JOIN xf_user u ON u.user_id = v.user_id
+            WHERE t.thread_id IS NULL OR u.user_id IS NULL
+            LIMIT {$limit}"
+        );
+
+        $db->query(
+            "DELETE l
+            FROM xf_wrxt_thread_freshness_log l
+            LEFT JOIN xf_thread t ON t.thread_id = l.thread_id
+            WHERE t.thread_id IS NULL
+            LIMIT {$limit}"
+        );
+
+        $db->query(
+            "DELETE s
+            FROM xf_wrxt_thread_freshness_state s
+            LEFT JOIN xf_thread t ON t.thread_id = s.thread_id
+            WHERE t.thread_id IS NULL
+            LIMIT {$limit}"
+        );
     }
 }

@@ -21,7 +21,8 @@ class Recalculate extends AbstractRebuildJob
 
     protected function rebuildById($id): void
     {
-        $this->app->repository('WarextStudios\ThreadFreshness:ThreadFreshness')->recalculateThread((int)$id);
+        $this->app->repository('WarextStudios\ThreadFreshness:ThreadFreshness')
+            ->recalculateThreadSafely((int)$id);
     }
 
     protected function getStatusType(): \XF\Phrase

@@ -47,24 +47,35 @@ class Moderate extends AbstractService
         }
 
         $repository = $this->repository();
-        $state = $repository->getOrCreateState((int)$this->thread->thread_id);
-        $oldStatus = $repository->getEffectiveStatus($state);
 
-        $state->moderator_status = $this->status;
-        $state->moderator_user_id = $this->status === '' ? 0 : (int)$this->user->user_id;
-        $state->moderator_date = $this->status === '' ? 0 : \XF::$time;
-        $state->save();
+        return $repository->withThreadLock((int)$this->thread->thread_id, function() use ($repository)
+        {
+            $state = $repository->getOrCreateState((int)$this->thread->thread_id);
+            $oldStatus = $repository->getEffectiveStatus($state);
 
-        $newStatus = $repository->getEffectiveStatus($state);
-        $repository->logStatusChange(
-            (int)$this->thread->thread_id,
-            $oldStatus,
-            $newStatus,
-            'moderator',
-            (int)$this->user->user_id
-        );
+            $state->moderator_status = $this->status;
+            $state->moderator_user_id = $this->status === '' ? 0 : (int)$this->user->user_id;
+            $state->moderator_date = $this->status === '' ? 0 : \XF::$time;
+            $state->save();
 
-        return $state;
+            $newStatus = $repository->getEffectiveStatus($state);
+            $repository->logStatusChange(
+                (int)$this->thread->thread_id,
+                $oldStatus,
+                $newStatus,
+                'moderator',
+                (int)$this->user->user_id
+            );
+            $repository->notifyStatusChange(
+                (int)$this->thread->thread_id,
+                $oldStatus,
+                $newStatus,
+                'moderator',
+                (int)$this->user->user_id
+            );
+
+            return $state;
+        });
     }
 
     protected function repository(): \WarextStudios\ThreadFreshness\Repository\ThreadFreshness

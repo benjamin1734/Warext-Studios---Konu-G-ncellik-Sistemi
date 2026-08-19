@@ -11,15 +11,16 @@ XenForo destek ve bilgi kategorilerindeki eski konuların topluluk tarafından g
 - Olumsuz oy nedenleri
 - Moderatör doğrulaması
 - Yeniden doğrulama döngüsü
+- Durum değişikliği bildirimleri
 - XenForo izin sistemi ve ACP ayarları
 - PHP 8.4 otomatik kontrolü
 - Durum hesaplama testleri
 
 ## Güncel Geliştirme Durumu
 
-Alpha 5 çekirdeğinde forum bazlı aktivasyon, forum başına bekleme ve sürüm ayarları, topluluk oylaması, konu ve konu listesi durum rozetleri, sürüm bazlı sonuçlar, yeniden doğrulama, moderatör doğrulaması ve ayrıştırılmış oy izinleri bulunur.
+Alpha 6 ile Faz 3 tamamlandı. Konu ve liste rozetleri, filtreleme, moderatör doğrulaması, ayrı oy izinleri, yeniden doğrulama ve önemli durum değişikliklerinde konu sahibine XenForo uyarısı aktif durumdadır.
 
-Yerel doğrulamada PHP 8.4 syntax kontrolü, durum hesaplama, uygunluk, sürüm, yeniden doğrulama ve moderatör durum testleri başarıyla geçmiştir.
+Oy ve moderatör işlemleri konu bazlı veritabanı kilidi ile seri hale getirilmiştir. Silinmiş konu ve kullanıcıların eklenti tablolarında bıraktığı artık kayıtlar günlük cron ile temizlenir.
 
 Normal dağıtım için `_data` XML dışa aktarımı ve nihai release ZIP henüz tamamlanmamıştır.
 

@@ -28,7 +28,7 @@
 - [x] Moderatör doğrulaması
 - [x] Yeniden doğrulama döngüsü
 - [x] Otomatik yeniden hesaplama cron'u
-- [ ] Bildirimler
+- [x] Bildirimler
 - [x] Oy değiştirme iznini ayrılaştırma
 - [x] Kendi konusuna oy iznini ayrılaştırma
 - [x] Liste filtre arayüzü
@@ -37,8 +37,8 @@
 - [ ] ACP istatistikleri
 - [ ] Arama entegrasyonu
 - [ ] Güncel çözüm yönlendirmesi
-- [ ] Orphan kayıt temizliği
-- [ ] Eşzamanlı oy güvenliği
+- [x] Orphan kayıt temizliği
+- [x] Eşzamanlı oy güvenliği
 - [ ] `_data` XML dışa aktarımı
 - [ ] Performans ve güvenlik testleri
 - [ ] Gerçek XenForo 2.3 entegrasyon testi

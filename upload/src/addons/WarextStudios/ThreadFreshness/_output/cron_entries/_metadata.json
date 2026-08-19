@@ -1,5 +1,8 @@
 {
     "wrxtFreshnessRecalculate.json": {
         "hash": "a533a6bcdd5f791731a3c3f2400b4d4d"
+    },
+    "wrxtFreshnessCleanup.json": {
+        "hash": "4c9554b0f86ace799b8c96ae308e7d43"
     }
 }

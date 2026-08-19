@@ -34,5 +34,23 @@
     },
     "permission.wrxtFreshness_moderate.txt": {
         "hash": "e74165fe47a57eb0353e1f9e9777d817"
+    },
+    "option.wrxtFreshnessNotifyOwner.txt": {
+        "hash": "f54169df4e1a7b49ff8966dd3339a333"
+    },
+    "cron_entry.wrxtFreshnessCleanup.txt": {
+        "hash": "a6ca64b3d3af6cd076b518c8afd6d7fd"
+    },
+    "wrxt_freshness_alert_questionable.txt": {
+        "hash": "146f0cb43a2269cfb49c33eaf35035ff"
+    },
+    "wrxt_freshness_alert_not_working.txt": {
+        "hash": "5ef1812ce58aff46bf4502e15e12ab4a"
+    },
+    "wrxt_freshness_alert_revalidating.txt": {
+        "hash": "aa9d33bbbd4487f8a527369b3c3ace47"
+    },
+    "wrxt_freshness_alert_recovered.txt": {
+        "hash": "56f0b3891802fe0ccbc0347ec2ade8b6"
     }
 }

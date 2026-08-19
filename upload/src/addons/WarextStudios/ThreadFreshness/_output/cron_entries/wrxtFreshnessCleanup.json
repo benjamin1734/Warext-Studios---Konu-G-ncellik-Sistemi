@@ -1,0 +1,17 @@
+{
+    "cron_class": "WarextStudios\\ThreadFreshness\\Cron\\Cleanup",
+    "cron_method": "run",
+    "run_rules": {
+        "day_type": "dom",
+        "dom": [
+            -1
+        ],
+        "hours": [
+            4
+        ],
+        "minutes": [
+            23
+        ]
+    },
+    "active": true
+}

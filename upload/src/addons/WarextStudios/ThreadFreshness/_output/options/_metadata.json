@@ -16,5 +16,8 @@
     },
     "wrxtFreshnessRevalidateDays.json": {
         "hash": "221d384dcf46452687f91cbc53621d28"
+    },
+    "wrxtFreshnessNotifyOwner.json": {
+        "hash": "0840ebced9d47ce1c70eab33f3fa8bdb"
     }
 }

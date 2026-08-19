@@ -1,0 +1,10 @@
+<xf:if is="$alert.extra_data.status == 'questionable'">
+	{{ phrase('wrxt_freshness_alert_questionable', {'title': $content.title}) }}
+<xf:elseif is="$alert.extra_data.status == 'not_working'" />
+	{{ phrase('wrxt_freshness_alert_not_working', {'title': $content.title}) }}
+<xf:elseif is="$alert.extra_data.status == 'revalidating'" />
+	{{ phrase('wrxt_freshness_alert_revalidating', {'title': $content.title}) }}
+<xf:else />
+	{{ phrase('wrxt_freshness_alert_recovered', {'title': $content.title}) }}
+</xf:if>
+<push:url>{{ link('canonical:threads', $content) }}</push:url>

@@ -72,32 +72,42 @@ class Vote extends AbstractService
             throw new \LogicException('Permission denied');
         }
 
-        $em = $this->app->em();
-        $entity = $this->app->finder('WarextStudios\ThreadFreshness:Vote')
-            ->where('thread_id', $this->thread->thread_id)
-            ->where('user_id', $this->user->user_id)
-            ->fetchOne();
+        $repository = $this->repository();
 
-        if ($entity && !$this->user->hasPermission('wrxtFreshness', 'changeVote'))
+        return $repository->withThreadLock((int)$this->thread->thread_id, function() use ($repository)
         {
-            throw new \LogicException('Permission denied');
-        }
+            $em = $this->app->em();
+            $entity = $this->app->finder('WarextStudios\ThreadFreshness:Vote')
+                ->where('thread_id', $this->thread->thread_id)
+                ->where('user_id', $this->user->user_id)
+                ->fetchOne();
 
-        if (!$entity)
-        {
-            $entity = $em->create('WarextStudios\ThreadFreshness:Vote');
-            $entity->thread_id = $this->thread->thread_id;
-            $entity->user_id = $this->user->user_id;
-        }
+            if ($entity && !$this->user->hasPermission('wrxtFreshness', 'changeVote'))
+            {
+                throw new \LogicException('Permission denied');
+            }
 
-        $entity->vote = $this->vote;
-        $entity->reason = $this->reason;
-        $entity->version = $this->version;
-        $entity->message = $this->message;
-        $entity->save();
+            if (!$entity)
+            {
+                $entity = $em->create('WarextStudios\ThreadFreshness:Vote');
+                $entity->thread_id = $this->thread->thread_id;
+                $entity->user_id = $this->user->user_id;
+            }
 
-        $this->repository()->recalculateThread($this->thread->thread_id, 'vote', $this->user->user_id);
-        return $entity;
+            $entity->vote = $this->vote;
+            $entity->reason = $this->reason;
+            $entity->version = $this->version;
+            $entity->message = $this->message;
+            $entity->save();
+
+            $repository->recalculateThread(
+                (int)$this->thread->thread_id,
+                'vote',
+                (int)$this->user->user_id
+            );
+
+            return $entity;
+        });
     }
 
     protected function repository(): \WarextStudios\ThreadFreshness\Repository\ThreadFreshness
