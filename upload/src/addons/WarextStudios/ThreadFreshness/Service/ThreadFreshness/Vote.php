@@ -8,6 +8,15 @@ use XF\Service\AbstractService;
 
 class Vote extends AbstractService
 {
+    protected const REASONS = [
+        'outdated_version',
+        'dead_links',
+        'method_invalid',
+        'incomplete',
+        'did_not_work',
+        'other'
+    ];
+
     protected Thread $thread;
     protected User $user;
     protected int $vote = 0;
@@ -28,12 +37,25 @@ class Vote extends AbstractService
         {
             throw new \InvalidArgumentException('Invalid vote');
         }
+
         $this->vote = $vote;
+
+        if ($vote === 1)
+        {
+            $this->reason = '';
+        }
     }
 
     public function setReason(string $reason): void
     {
-        $this->reason = mb_substr(trim($reason), 0, 64);
+        $reason = trim($reason);
+
+        if ($reason !== '' && !in_array($reason, self::REASONS, true))
+        {
+            $reason = '';
+        }
+
+        $this->reason = $reason;
     }
 
     public function setVersion(string $version): void
@@ -52,6 +74,7 @@ class Vote extends AbstractService
         {
             throw new \LogicException('Thread and user must exist');
         }
+
         if (!in_array($this->vote, [-1, 1], true))
         {
             throw new \LogicException('Vote is required');
@@ -71,12 +94,17 @@ class Vote extends AbstractService
         }
 
         $entity->vote = $this->vote;
-        $entity->reason = $this->reason;
+        $entity->reason = $this->vote === -1 ? $this->reason : '';
         $entity->version = $this->version;
         $entity->message = $this->message;
         $entity->save();
 
-        $this->repository()->recalculateThread($this->thread->thread_id, 'vote', $this->user->user_id);
+        $this->repository()->recalculateThread(
+            $this->thread->thread_id,
+            'vote',
+            $this->user->user_id
+        );
+
         return $entity;
     }
 

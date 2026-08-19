@@ -14,3 +14,4 @@ jobs:
           php-version: '8.4'
       - run: find upload/src/addons/WarextStudios/ThreadFreshness -name '*.php' -print0 | xargs -0 -n1 php -l
       - run: php tests/status_calculator.php
+      - run: php tests/eligibility.php

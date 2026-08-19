@@ -1,0 +1,23 @@
+{
+    "option_group.wrxtThreadFreshness.txt": {
+        "hash": "1bce3c6ea0359d130eb8697f53cae0e9"
+    },
+    "option.wrxtFreshnessGeneral.txt": {
+        "hash": "c50457d2bc0adfb1b6df15f0c435ec66"
+    },
+    "option.wrxtFreshnessForumIds.txt": {
+        "hash": "5522b5217f03e50068c7776e9fd5ab92"
+    },
+    "option.wrxtFreshnessMinAccountDays.txt": {
+        "hash": "e5ad53ca093f8381945f9892c718a917"
+    },
+    "option.wrxtFreshnessMinMessages.txt": {
+        "hash": "138d3e6a55f05e2d7e815dcdb1c502af"
+    },
+    "option.wrxtFreshnessAllowOwnThread.txt": {
+        "hash": "f004ed3f2b74f026ffee6864e5fbd8f4"
+    },
+    "permission.wrxtFreshness_vote.txt": {
+        "hash": "daa670e58551faea634e0319dddc0e9c"
+    }
+}

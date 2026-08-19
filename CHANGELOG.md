@@ -1,5 +1,19 @@
 # Değişiklik Günlüğü
 
+## 1.0.0 Alpha 3
+
+- Seçili forumlarda çalışma ve bekleme süresi seçenekleri eklendi.
+- Minimum hesap yaşı ve mesaj şartları eklendi.
+- Kendi konusuna oy verme seçeneği eklendi.
+- XenForo kullanıcı izni ile oy kontrolü eklendi.
+- XenForo Thread entity ve public Thread controller uzantıları eklendi.
+- Konu sayfasına güncellik doğrulama paneli eklendi.
+- Çalıştı ve çalışmadı oy endpoint'i eklendi.
+- Sürüm, olumsuz oy nedeni ve kısa açıklama girişi eklendi.
+- Olumsuz oy nedenleri doğrulama listesi ile sınırlandırıldı.
+- Konu ve ziyaretçi uygunluk testleri eklendi.
+- XenForo geliştirme verileri `_output` altında oluşturuldu.
+
 ## 1.0.0 Alpha 2
 
 - XenForo 2.3 rebuild job dönüş tipi düzeltildi.
