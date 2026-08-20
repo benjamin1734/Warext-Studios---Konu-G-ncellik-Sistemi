@@ -1,30 +1,73 @@
 <?php
 
-$root = __DIR__ . '/../upload/src/addons/WarextStudios/ThreadFreshness';
-$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root));
+$repoRoot = dirname(__DIR__);
+$root = $repoRoot . '/upload/src/addons/WarextStudios/ThreadFreshness';
 $forbiddenFunctions = ['eval', 'exec', 'shell_exec', 'system', 'passthru', 'proc_open', 'popen'];
+$phpRoots = [$root, $repoRoot . '/tests', $repoRoot . '/tools'];
 
+foreach ($phpRoots as $phpRoot)
+{
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($phpRoot, FilesystemIterator::SKIP_DOTS));
+    foreach ($iterator as $file)
+    {
+        if (!$file->isFile() || $file->getExtension() !== 'php')
+        {
+            continue;
+        }
+        $source = (string)file_get_contents($file->getPathname());
+        foreach (token_get_all($source) as $token)
+        {
+            if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true))
+            {
+                fwrite(STDERR, "Yorum bulundu: {$file->getPathname()}\n");
+                exit(1);
+            }
+        }
+        foreach ($forbiddenFunctions as $function)
+        {
+            if (preg_match('/\b' . preg_quote($function, '/') . '\s*\(/i', $source))
+            {
+                fwrite(STDERR, "Yasak fonksiyon bulundu: $function\n");
+                exit(1);
+            }
+        }
+    }
+}
+
+$iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($root, FilesystemIterator::SKIP_DOTS));
 foreach ($iterator as $file)
 {
-    if (!$file->isFile() || $file->getExtension() !== 'php')
+    if (!$file->isFile())
+    {
+        continue;
+    }
+    $extension = strtolower($file->getExtension());
+    if (!in_array($extension, ['xml', 'html', 'htm'], true))
     {
         continue;
     }
     $source = (string)file_get_contents($file->getPathname());
-    $tokens = token_get_all($source);
-    foreach ($tokens as $token)
+    if (str_contains($source, '<!--') || str_contains($source, '-->'))
     {
-        if (is_array($token) && in_array($token[0], [T_COMMENT, T_DOC_COMMENT], true))
-        {
-            fwrite(STDERR, "Yorum bulundu: {$file->getPathname()}\n");
-            exit(1);
-        }
+        fwrite(STDERR, "Markup yorumu bulundu: {$file->getPathname()}\n");
+        exit(1);
     }
-    foreach ($forbiddenFunctions as $function)
+}
+
+$workflowRoot = $repoRoot . '/.github/workflows';
+if (is_dir($workflowRoot))
+{
+    $iterator = new RecursiveIteratorIterator(new RecursiveDirectoryIterator($workflowRoot, FilesystemIterator::SKIP_DOTS));
+    foreach ($iterator as $file)
     {
-        if (preg_match('/\b' . preg_quote($function, '/') . '\s*\(/i', $source))
+        if (!$file->isFile() || !in_array(strtolower($file->getExtension()), ['yml', 'yaml'], true))
         {
-            fwrite(STDERR, "Yasak fonksiyon bulundu: $function\n");
+            continue;
+        }
+        $source = (string)file_get_contents($file->getPathname());
+        if (preg_match('/(^|\R)\s*#/m', $source))
+        {
+            fwrite(STDERR, "Workflow yorumu bulundu: {$file->getPathname()}\n");
             exit(1);
         }
     }
