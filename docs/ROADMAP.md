@@ -1,6 +1,6 @@
 # Yol Haritası
 
-## 1.1.0 Stable
+## 1.0.0 Stable - Nihai
 
 Tamamlandı:
 
@@ -12,8 +12,9 @@ Tamamlandı:
 - Konu sahibinin bağlayıcı olmayan geçerlilik bildirimi
 - State kaydı olmayan eski konular için arama desteği
 - Büyük forumlar için toplu preload, parçalı arama ve daraltılmış rebuild
-- 1.0.0 → 1.1.0 otomatik şema yükseltmesi
+- Otomatik ve manuel SQL gerektirmeyen şema yükseltme zinciri
 - Kurulabilir `_data` + `hashes.json` release zinciri
+- PHP 8.4 CI, regresyon, güvenlik ve ZIP bütünlük kontrolleri
 
 ## Sonraki olası geliştirmeler
 

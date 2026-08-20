@@ -4,7 +4,7 @@ $root = dirname(__DIR__);
 $source = $root . '/upload';
 $build = $root . '/build';
 $stage = $build . '/release';
-$zipName = 'Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip';
+$zipName = 'Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip';
 
 function wrxtRemove(string $path): void
 {

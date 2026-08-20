@@ -4,7 +4,7 @@ XenForo 2.3 için topluluk tabanlı konu ve çözüm güncellik doğrulama eklen
 
 ## Sürüm
 
-**1.1.0 Stable**
+**1.0.0 Stable - Nihai Sürüm**
 
 ## Ana özellikler
 
@@ -42,7 +42,7 @@ XenForo 2.3 için topluluk tabanlı konu ve çözüm güncellik doğrulama eklen
 
 ## Kurulum
 
-`Warext-Studios-Konu-Guncellik-Sistemi-1.1.0.zip` paketini XenForo yönetim panelindeki arşivden eklenti kurma/yükseltme ekranından yükleyin.
+`Warext-Studios-Konu-Guncellik-Sistemi-1.0.0.zip` paketini XenForo yönetim panelindeki arşivden eklenti kurma/yükseltme ekranından yükleyin.
 
 Kurulumdan sonra:
 
@@ -52,9 +52,9 @@ Kurulumdan sonra:
 4. Forum için bekleme süresini, yaş hesabı yöntemini ve gerekiyorsa sürüm listesini ayarlayın.
 5. Gerekiyorsa durum hesaplama eşiklerini ACP seçeneklerinden özelleştirin.
 
-## Yükseltme
+## Sürüm notu
 
-1.0.0 sürümünden 1.1.0'a yükseltmede yeni kolonlar `Setup.php` tarafından eklenir ve mevcut state kayıtları yeniden hesaplama job'una alınır.
+Bu paket resmi **1.0.0 Stable** sürümüdür. Denetim sırasında kullanılan dahili XenForo `version_id` değeri geriye çekilmemiştir; bu sayede daha önce test paketini kurmuş sistemlerde sürüm düşürme riski oluşturulmaz.
 
 ## Veri tabanı
 
