@@ -1,0 +1,132 @@
+<?php
+
+$root = dirname(__DIR__);
+$addon = $root . '/upload/src/addons/WarextStudios/ThreadFreshness';
+
+$addonJson = json_decode((string)file_get_contents($addon . '/addon.json'), true, 512, JSON_THROW_ON_ERROR);
+if (($addonJson['version_string'] ?? '') !== '1.0.0' || ($addonJson['version_id'] ?? 0) !== 1010070)
+{
+    throw new RuntimeException('addon.json version is invalid');
+}
+
+$mods = (string)file_get_contents($addon . '/_data/template_modifications.xml');
+if (str_contains($mods, '$filters|replace'))
+{
+    throw new RuntimeException('String replace filter bug still exists');
+}
+if (!str_contains($mods, 'array_merge($filters'))
+{
+    throw new RuntimeException('Forum filter does not preserve filter array');
+}
+if (!str_contains($mods, 'wrxt_freshness_age_mode'))
+{
+    throw new RuntimeException('Age mode UI is missing');
+}
+if (preg_match('/\.wrxtFreshness(?:Get|Is|Has|Can|Set)[A-Za-z0-9_]*\s*\(/', $mods))
+{
+    throw new RuntimeException('Template contains a XenForo 2.3.7-incompatible custom method name');
+}
+foreach (['.getWrxtFreshnessState()', '.isWrxtFreshnessEligible()', '.canWrxtFreshnessVote()', '.hasWrxtFreshnessOwnerClaim()'] as $needle)
+{
+    if (!str_contains($mods, $needle))
+    {
+        throw new RuntimeException('Read-only template method contract is missing: ' . $needle);
+    }
+}
+
+$options = (string)file_get_contents($addon . '/_data/options.xml');
+if (str_contains($options, 'wrxtFreshnessForumIds'))
+{
+    throw new RuntimeException('Legacy forum IDs option still exists');
+}
+if (!str_contains($options, 'wrxtFreshnessRules'))
+{
+    throw new RuntimeException('Configurable status rules are missing');
+}
+
+$setup = (string)file_get_contents($addon . '/Setup.php');
+foreach (['wrxt_freshness_age_mode', 'reference_date', 'owner_claim_date', 'alternative_thread_id', 'upgrade1010070Step5'] as $needle)
+{
+    if (!str_contains($setup, $needle))
+    {
+        throw new RuntimeException('Setup migration missing: ' . $needle);
+    }
+}
+
+$threadController = (string)file_get_contents($addon . '/XF/Pub/Controller/Thread.php');
+foreach (['actionFreshnessVote', 'actionFreshnessModerate', 'actionFreshnessOwnerClaim', 'actionFreshnessReplacement'] as $action)
+{
+    $pos = strpos($threadController, 'function ' . $action);
+    $post = strpos($threadController, '$this->assertPostOnly();', $pos);
+    if ($pos === false || $post === false || $post - $pos > 300)
+    {
+        throw new RuntimeException('POST protection missing for ' . $action);
+    }
+}
+
+$repo = (string)file_get_contents($addon . '/Repository/ThreadFreshness.php');
+foreach ([
+    'GREATEST(p.post_date, p.last_edit_date)',
+    'p.user_id = t.user_id',
+    'tq.solution_post_id',
+    'reference_date',
+    'moderator_status',
+    '$verificationBase',
+    '$state->moderator_status = \'\'',
+    'getWrxtFreshnessReferenceDate'
+] as $needle)
+{
+    if (!str_contains($repo, $needle))
+    {
+        throw new RuntimeException('Repository audit rule missing: ' . $needle);
+    }
+}
+
+$forumController = (string)file_get_contents($addon . '/XF/Pub/Controller/Forum.php');
+foreach (['columnSqlName', 'whereSql', 'xf_thread_question', 'referenceSql', 'WrxtFreshnessState.reference_date'] as $needle)
+{
+    if (!str_contains($forumController, $needle))
+    {
+        throw new RuntimeException('Forum filter consistency rule missing: ' . $needle);
+    }
+}
+
+if (!str_contains($repo, 'getRecentNegativeFeedback') || !str_contains($repo, 'getWrxtFreshnessReferenceDate'))
+{
+    throw new RuntimeException('Current-cycle feedback filtering is missing');
+}
+
+$threadEntity = (string)file_get_contents($addon . '/XF/Entity/Thread.php');
+foreach (['hasWrxtFreshnessListData', 'setWrxtFreshnessListDataPreloaded', 'getWrxtFreshnessVisitorVoteEntity'] as $needle)
+{
+    if (!str_contains($threadEntity, $needle))
+    {
+        throw new RuntimeException('Thread entity regression guard missing: ' . $needle);
+    }
+}
+if (!str_contains($mods, '$thread.hasWrxtFreshnessListData()'))
+{
+    throw new RuntimeException('Thread list badge is not guarded by bulk preload state');
+}
+
+$cron = (string)file_get_contents($addon . '/Cron/Recalculate.php');
+if (!str_contains($cron, 'enqueueUnique') || !str_contains($cron, 'wrxtThreadFreshnessRecalculate'))
+{
+    throw new RuntimeException('Recalculation cron is not uniquely queued');
+}
+
+foreach (["addKey('moderator_user_id')", "addKey('replacement_user_id')"] as $needle)
+{
+    if (!str_contains($setup, $needle))
+    {
+        throw new RuntimeException('Cleanup index missing: ' . $needle);
+    }
+}
+
+$freshnessController = (string)file_get_contents($addon . '/Pub/Controller/Freshness.php');
+if (!str_contains($freshnessController, 'mb_substr') || !str_contains($freshnessController, '0, 100'))
+{
+    throw new RuntimeException('Public search query length guard is missing');
+}
+
+echo "OK\n";
