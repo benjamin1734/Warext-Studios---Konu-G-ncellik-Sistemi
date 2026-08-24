@@ -1,6 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <phrases>
   <phrase title="admin_navigation.wrxtThreadFreshness" version_id="1010070" version_string="1.0.0">Konu Güncellik Sistemi</phrase>
+  <phrase title="admin_navigation.wrxtThreadFreshnessDashboard" version_id="1010070" version_string="1.0.0">Genel Bakış</phrase>
+  <phrase title="admin_navigation.wrxtThreadFreshnessSettings" version_id="1010070" version_string="1.0.0">Ayarlar</phrase>
   <phrase title="cron_entry.wrxtFreshnessCleanup" version_id="1010070" version_string="1.0.0">Konu güncellik sistemi artık kayıt temizliği</phrase>
   <phrase title="cron_entry.wrxtFreshnessRecalculate" version_id="1010070" version_string="1.0.0">Konu güncellik durumlarını yeniden hesapla</phrase>
   <phrase title="option.wrxtFreshnessAllowOwnThread" version_id="1010070" version_string="1.0.0">Konu sahipleri kendi konularında oy kullanabilsin</phrase>
@@ -9,7 +11,9 @@
   <phrase title="option.wrxtFreshnessMinMessages" version_id="1010070" version_string="1.0.0">Oy için minimum mesaj sayısı</phrase>
   <phrase title="option.wrxtFreshnessNotifyOwner" version_id="1010070" version_string="1.0.0">Durum değişikliklerinde konu sahibini uyar</phrase>
   <phrase title="option.wrxtFreshnessRevalidateDays" version_id="1010070" version_string="1.0.0">Yeniden doğrulama süresi (gün)</phrase>
-  <phrase title="option.wrxtFreshnessRules" version_id="1010070" version_string="1.0.0">Durum hesaplama eşikleri</phrase><phrase title="option_explain.wrxtFreshnessGeneral" version_id="1010070" version_string="1.0.0"><![CDATA[Gün alanı yalnızca eski forum-ID tabanlı sürümlerden geçişte varsayılan eşik olarak kullanılır. 1.0.0 ve sonrası sürümlerde aktif eşik her forumun düzenleme ekranından belirlenir.]]></phrase><phrase title="option_group.wrxtThreadFreshness" version_id="1010070" version_string="1.0.0">Warext Studios - Konu Güncellik Sistemi</phrase>
+  <phrase title="option.wrxtFreshnessRules" version_id="1010070" version_string="1.0.0">Durum hesaplama eşikleri</phrase>
+  <phrase title="option_explain.wrxtFreshnessGeneral" version_id="1010070" version_string="1.0.0"><![CDATA[Gün alanı yalnızca eski forum-ID tabanlı sürümlerden geçişte varsayılan eşik olarak kullanılır. 1.0.0 ve sonrası sürümlerde aktif eşik her forumun düzenleme ekranından belirlenir.]]></phrase>
+  <phrase title="option_group.wrxtThreadFreshness" version_id="1010070" version_string="1.0.0">Warext Studios - Konu Güncellik Sistemi</phrase>
   <phrase title="permission.wrxtFreshness_changeVote" version_id="1010070" version_string="1.0.0">Konu güncellik oyunu değiştirebilir</phrase>
   <phrase title="permission.wrxtFreshness_moderate" version_id="1010070" version_string="1.0.0">Konu güncellik durumunu moderatör olarak doğrulayabilir</phrase>
   <phrase title="permission.wrxtFreshness_vote" version_id="1010070" version_string="1.0.0">Konu güncellik oylamasına katılabilir</phrase>
