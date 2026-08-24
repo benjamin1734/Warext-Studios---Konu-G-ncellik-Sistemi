@@ -26,4 +26,11 @@ class Dashboard extends AbstractController
             ]
         );
     }
+
+    public function actionSettings()
+    {
+        $this->assertAdminPermission('option');
+
+        return $this->redirect($this->buildLink('options/groups/wrxtThreadFreshness'));
+    }
 }
