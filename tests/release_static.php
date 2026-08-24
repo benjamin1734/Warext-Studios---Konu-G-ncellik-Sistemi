@@ -8,6 +8,37 @@ if (($addonJson['version_string'] ?? '') !== '1.0.0' || ($addonJson['version_id'
 {
     throw new RuntimeException('addon.json version is invalid');
 }
+if (($addonJson['options'] ?? '') !== 'thread-freshness/settings')
+{
+    throw new RuntimeException('Add-on options link is missing');
+}
+
+$adminNav = (string)file_get_contents($addon . '/_data/admin_navigation.xml');
+foreach (['wrxtThreadFreshnessDashboard', 'wrxtThreadFreshnessSettings', 'thread-freshness/settings'] as $needle)
+{
+    if (!str_contains($adminNav, $needle))
+    {
+        throw new RuntimeException('Admin navigation entry is missing: ' . $needle);
+    }
+}
+
+$dashboard = (string)file_get_contents($addon . '/Admin/Controller/Dashboard.php');
+foreach (['actionSettings', "assertAdminPermission('option')", 'options/groups/wrxtThreadFreshness'] as $needle)
+{
+    if (!str_contains($dashboard, $needle))
+    {
+        throw new RuntimeException('Settings controller contract is missing: ' . $needle);
+    }
+}
+
+$phrases = (string)file_get_contents($addon . '/_data/phrases.xml');
+foreach (['admin_navigation.wrxtThreadFreshnessDashboard', 'admin_navigation.wrxtThreadFreshnessSettings'] as $needle)
+{
+    if (!str_contains($phrases, $needle))
+    {
+        throw new RuntimeException('Settings navigation phrase is missing: ' . $needle);
+    }
+}
 
 $mods = (string)file_get_contents($addon . '/_data/template_modifications.xml');
 if (str_contains($mods, '$filters|replace'))
