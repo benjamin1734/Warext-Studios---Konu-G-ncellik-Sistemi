@@ -1,5 +1,5 @@
 {
-    "src/addons/WarextStudios/ThreadFreshness/Admin/Controller/Dashboard.php": "d00ed7fe08de60474bc4dc7d92131f1684dbecf3b21eb9e04ab8cd43a330c9ad",
+    "src/addons/WarextStudios/ThreadFreshness/Admin/Controller/Dashboard.php": "101b21bd35265becff717c1339d3b6f188efd9fbdf098d3e7472a0ab23ace21a",
     "src/addons/WarextStudios/ThreadFreshness/Cron/Cleanup.php": "dc58bd66ec6890396a4af5eb530a9a3bd33e43a75a4b432f51b9ce5173957486",
     "src/addons/WarextStudios/ThreadFreshness/Cron/Recalculate.php": "298a31e6d38b24baa84743e8b5d0cef8eb66c480754671d701d4d90b716720da",
     "src/addons/WarextStudios/ThreadFreshness/Entity/StatusLog.php": "d404fb5053f806e24308cbf4e6866d694d550284480584f99d5bddaba1a8144c",
@@ -27,15 +27,15 @@
     "src/addons/WarextStudios/ThreadFreshness/XF/Entity/Thread.php": "f770ecd431a11fb1a479d3c51f6fd9210f4cf7965fae640d22f6da486786810f",
     "src/addons/WarextStudios/ThreadFreshness/XF/Pub/Controller/Forum.php": "6b862038ca9db1f2d738d71d0cd240a4ee4c847ec48e3cb8ddedac605bcf7d8e",
     "src/addons/WarextStudios/ThreadFreshness/XF/Pub/Controller/Thread.php": "a0f1bf7a28d775721380e2c1d405e37028d74bf954e6e7fcd91c79900dd500a3",
-    "src/addons/WarextStudios/ThreadFreshness/_data/admin_navigation.xml": "b40236a7646882b13f798c1f115e8d0fc00ba9ec5f17e50625f757ecb91df279",
+    "src/addons/WarextStudios/ThreadFreshness/_data/admin_navigation.xml": "9963be913c14d9a86f4d2d019977ff5ebfbb2d18eed1d7af099fe6411a1af26b",
     "src/addons/WarextStudios/ThreadFreshness/_data/class_extensions.xml": "d3db0c2c0e172d9412b483c57f4565aab95044d98c592fccb63e782a05ff8ef0",
     "src/addons/WarextStudios/ThreadFreshness/_data/cron.xml": "9194c4c166f2d145e0970805af30621a5b3e62ac785805b1e011d9f3f7be3c29",
     "src/addons/WarextStudios/ThreadFreshness/_data/option_groups.xml": "911c60bf1499ff0e99379b94e4ab98a439ed40aa504526842f7cc29a1ee5e661",
     "src/addons/WarextStudios/ThreadFreshness/_data/options.xml": "9b610c622b85605216852ebd2eea80b6926f97d410e09994c0fa587821360c6c",
     "src/addons/WarextStudios/ThreadFreshness/_data/permissions.xml": "52bd5723cd9a479e9469d03c3a4d1f353512a4c456312fab377d24a3fcf628f1",
-    "src/addons/WarextStudios/ThreadFreshness/_data/phrases.xml": "a5dd0ecc3a1e504bf7483dca667ba92aaa17a6bbf5b5f5f13113e5eb0683b88c",
+    "src/addons/WarextStudios/ThreadFreshness/_data/phrases.xml": "a27098d7a5051fd5b94b512e65a1221db3788bfc1c56d025c3f05c3c9ee087b2",
     "src/addons/WarextStudios/ThreadFreshness/_data/routes.xml": "fb934ff4ec81222845e17940a8cbdec8a8ff5fe747e9f4e94685b097cb331fca",
     "src/addons/WarextStudios/ThreadFreshness/_data/template_modifications.xml": "ef1b5a6819fc1db7f5106960e9115023e7f214f3d98a15b16916f76fa1b3456d",
     "src/addons/WarextStudios/ThreadFreshness/_data/templates.xml": "bbec9924902d36266ddf9b6a87932c0eb8930ee30af957b81a0589dff44f7b54",
-    "src/addons/WarextStudios/ThreadFreshness/addon.json": "d614f32311635b7daa0f63f9ad5728475fd13ab7e9c8f995ae4844c7b0d4e44b"
+    "src/addons/WarextStudios/ThreadFreshness/addon.json": "af88b55adfc1e7ebe366fbf0f4e4dfdf215300c80e33e9882b6d4d555ae47ca8"
 }
