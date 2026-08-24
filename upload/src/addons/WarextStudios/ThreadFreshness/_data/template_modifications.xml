@@ -1,0 +1,249 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<template_modifications>
+  <modification type="admin" template="forum_edit" modification_key="wrxt_thread_freshness_forum_edit" description="Forum bazlı konu güncellik ayarlarını ekler" execution_order="10" enabled="1" action="str_replace">
+    <find>&lt;xf:option name="allow_posting"</find>
+    <replace><![CDATA[<xf:option name="wrxt_freshness_enabled" selected="$forum.wrxt_freshness_enabled"
+    label="Konu güncellik doğrulamasını etkinleştir"
+    hint="Bu forumdaki eski konularda topluluk güncellik doğrulaması açılır.">
+    <div class="formRow-explain">Doğrulama panelinin görünmesi için geçmesi gereken gün sayısı</div>
+    <xf:numberbox name="wrxt_freshness_days" value="{$forum.wrxt_freshness_days}" min="1" max="3650" step="1" />
+    <div class="formRow-explain">Yaş hesabı yöntemi</div>
+    <xf:select name="wrxt_freshness_age_mode" value="{$forum.wrxt_freshness_age_mode}">
+        <xf:option value="meaningful">Anlamlı güncelleme (önerilen): konu sahibinin mesajları ve ilk mesaj düzenlemeleri</xf:option>
+        <xf:option value="last_post">Her son mesaj konuyu yeniler</xf:option>
+    </xf:select>
+    <div class="formRow-explain">İzin verilen sürümler, her satıra bir değer. Boş bırakılırsa serbest sürüm girişi kullanılır.</div>
+    <xf:textarea name="wrxt_freshness_versions" value="{$forum.wrxt_freshness_versions}" autosize="true" maxlength="5000" />
+</xf:option>
+
+$0]]></replace>
+  </modification>
+  <modification type="public" template="forum_view" modification_key="wrxt_thread_freshness_forum_filter" description="Forum konu listesine güncellik filtre menüsü ekler" execution_order="20" enabled="1" action="str_replace">
+    <find>&lt;xf:ad position="forum_view_above_thread_list" arg-forum="{$forum}" /&gt;</find>
+    <replace><![CDATA[<xf:if is="$forum.wrxt_freshness_enabled">
+    <div class="block-outer">
+        <div class="block-outer-opposite">
+            <a class="button button--link menuTrigger" data-xf-click="menu" role="button" tabindex="0" aria-expanded="false" aria-haspopup="true">Güncellik filtresi</a>
+            <div class="menu" data-menu="menu" aria-hidden="true">
+                <div class="menu-content">
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': null})) }}">Tümü</a>
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': 'current'})) }}">Güncel</a>
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': 'likely_current'})) }}">Muhtemelen güncel</a>
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': 'mixed'})) }}">Kararsız</a>
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': 'questionable'})) }}">Güncelliği şüpheli</a>
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': 'not_working'})) }}">Artık çalışmıyor</a>
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': 'revalidating'})) }}">Yeniden doğrulanıyor</a>
+                    <a class="menu-linkRow" href="{{ link('forums', $forum, array_merge($filters, {'freshness_status': 'unverified'})) }}">Doğrulanmamış</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</xf:if>
+$0]]></replace>
+  </modification>
+  <modification type="public" template="thread_view" modification_key="wrxt_thread_freshness_moderator" description="Konu güncellik moderatör doğrulama panelini ekler" execution_order="20" enabled="1" action="preg_replace">
+    <find>#&lt;xf:ad position="thread_view_below_messages" arg-thread="\{\$thread\}" /&gt;#</find>
+    <replace>&lt;xf:if is="$thread.canWrxtFreshnessModerate()"&gt;
+	&lt;xf:set var="$wrxtModState" value="{$thread.getWrxtFreshnessState()}" /&gt;
+	&lt;div class="block" id="wrxt-thread-freshness-moderator"&gt;
+		&lt;div class="block-container"&gt;
+			&lt;h3 class="block-header"&gt;Moderatör doğrulaması&lt;/h3&gt;
+			&lt;div class="block-body"&gt;
+				&lt;div class="block-row"&gt;
+					&lt;xf:form action="{{ link('threads/freshness-moderate', $thread) }}" ajax="true"&gt;
+						&lt;xf:selectrow name="moderator_status" label="Doğrulama durumu" value="{{ $wrxtModState ? $wrxtModState.moderator_status : '' }}"&gt;
+							&lt;xf:option value=""&gt;Topluluk sonucunu kullan&lt;/xf:option&gt;
+							&lt;xf:option value="current"&gt;Moderatör doğruladı: güncel&lt;/xf:option&gt;
+							&lt;xf:option value="review"&gt;Moderatör: kontrol gerekli&lt;/xf:option&gt;
+							&lt;xf:option value="not_working"&gt;Moderatör doğruladı: çalışmıyor&lt;/xf:option&gt;
+						&lt;/xf:selectrow&gt;
+						&lt;xf:submitrow submit="Kaydet" /&gt;
+					&lt;/xf:form&gt;
+				&lt;/div&gt;
+			&lt;/div&gt;
+		&lt;/div&gt;
+	&lt;/div&gt;
+&lt;/xf:if&gt;
+$0</replace>
+  </modification>
+  <modification type="public" template="thread_view" modification_key="wrxt_thread_freshness_replacement" description="Eski konudan güncel çözüme yönlendirme panelini ekler" execution_order="30" enabled="1" action="preg_replace">
+    <find>#&lt;xf:ad position="thread_view_below_messages" arg-thread="\{\$thread\}" /&gt;#</find>
+    <replace><![CDATA[<xf:set var="$wrxtReplacement" value="{$thread.getWrxtFreshnessReplacementThread()}" />
+<xf:set var="$wrxtSuggestions" value="{$thread.getWrxtFreshnessAlternativeSuggestions()}" />
+<xf:if is="$wrxtReplacement OR $thread.canWrxtFreshnessManageReplacement()">
+    <div class="block" id="wrxt-thread-freshness-replacement">
+        <div class="block-container">
+            <h3 class="block-header">Güncel çözüm</h3>
+            <div class="block-body">
+                <xf:if is="$wrxtReplacement">
+                    <div class="block-row">Bu konu için daha güncel çözüm: <a href="{{ link('threads', $wrxtReplacement) }}"><strong>{$wrxtReplacement.title}</strong></a></div>
+                </xf:if>
+                <xf:if is="$wrxtSuggestions">
+                    <div class="block-row">
+                        <strong>Topluluk tarafından önerilen alternatifler</strong>
+                        <xf:foreach loop="$wrxtSuggestions" value="$wrxtSuggestion">
+                            <dl class="pairs pairs--justified"><dt><a href="{{ link('threads', $wrxtSuggestion.thread) }}">{$wrxtSuggestion.thread.title}</a></dt><dd>{$wrxtSuggestion.total|number} öneri</dd></dl>
+                        </xf:foreach>
+                    </div>
+                </xf:if>
+                <xf:if is="$thread.canWrxtFreshnessManageReplacement()">
+                    <div class="block-row">
+                        <xf:form action="{{ link('threads/freshness-replacement', $thread) }}" ajax="true">
+                            <xf:numberboxrow name="replacement_thread_id" value="{{ $thread.getWrxtFreshnessState() ? $thread.getWrxtFreshnessState().replacement_thread_id : 0 }}" min="0" label="Güncel çözüm konu ID" explain="0 girerek yönlendirmeyi kaldırabilirsiniz. Yalnızca görüntülenebilir ve bu konudan daha yeni konular kabul edilir." />
+                            <xf:submitrow submit="Kaydet" />
+                        </xf:form>
+                    </div>
+                </xf:if>
+            </div>
+        </div>
+    </div>
+</xf:if>
+$0]]></replace>
+  </modification>
+  <modification type="public" template="thread_list_macros" modification_key="wrxt_thread_freshness_thread_list" description="Konu listesine güncellik durum rozetini ekler" execution_order="20" enabled="1" action="str_replace">
+    <find>&lt;xf:if is="$thread.prefix_id"&gt;</find>
+    <replace><![CDATA[<xf:if is="$thread.hasWrxtFreshnessListData() AND $thread.isWrxtFreshnessEligible()">
+    <xf:set var="$wrxtListStatus" value="{$thread.getWrxtFreshnessDisplayStatus()}" />
+    <xf:if is="$wrxtListStatus == 'current'">
+        <span class="label label--green">Güncel</span>
+    <xf:elseif is="$wrxtListStatus == 'likely_current'" />
+        <span class="label label--olive">Muhtemelen güncel</span>
+    <xf:elseif is="$wrxtListStatus == 'mixed'" />
+        <span class="label label--yellow">Kararsız</span>
+    <xf:elseif is="$wrxtListStatus == 'questionable'" />
+        <span class="label label--orange">Güncelliği şüpheli</span>
+    <xf:elseif is="$wrxtListStatus == 'not_working'" />
+        <span class="label label--red">Artık çalışmıyor</span>
+    <xf:elseif is="$wrxtListStatus == 'revalidating'" />
+        <span class="label label--blue">Yeniden doğrulanıyor</span>
+    <xf:else />
+        <span class="label">Doğrulanmamış</span>
+    </xf:if>
+</xf:if>
+$0]]></replace>
+  </modification>
+  <modification type="public" template="thread_view" modification_key="wrxt_thread_freshness_thread_view" description="Konu güncellik doğrulama panelini konu görünümüne ekler" execution_order="10" enabled="1" action="preg_replace">
+    <find>#&lt;xf:ad position="thread_view_below_messages" arg-thread="\{\$thread\}" /&gt;#</find>
+    <replace><![CDATA[<xf:if is="$thread.isWrxtFreshnessEligible()">
+    <xf:set var="$wrxtState" value="{$thread.getWrxtFreshnessState()}" />
+    <xf:set var="$wrxtStateCurrent" value="{$thread.isWrxtFreshnessStateCurrent()}" />
+    <xf:set var="$wrxtDisplayStatus" value="{$thread.getWrxtFreshnessDisplayStatus()}" />
+    <xf:set var="$wrxtVisitorVote" value="{$thread.getWrxtFreshnessVisitorVote()}" />
+    <xf:set var="$wrxtVoteEntity" value="{$thread.getWrxtFreshnessVisitorVoteEntity()}" />
+    <xf:set var="$wrxtVersions" value="{$thread.getWrxtFreshnessConfiguredVersions()}" />
+    <xf:set var="$wrxtVersionSummary" value="{$thread.getWrxtFreshnessVersionSummary()}" />
+    <xf:set var="$wrxtReasonSummary" value="{$thread.getWrxtFreshnessFailureReasonSummary()}" />
+    <div class="block" id="wrxt-thread-freshness">
+        <div class="block-container">
+            <h3 class="block-header">Bu çözüm hâlâ geçerli mi?</h3>
+            <div class="block-body">
+                <div class="block-row">
+                    <div>Bu konu belirlenen güncellik eşiğini geçti. Çözümü gerçekten denediyseniz sonucu bildirebilirsiniz.</div>
+                    <xf:if is="$wrxtStateCurrent AND $wrxtState">
+                        <dl class="pairs pairs--justified"><dt>Çalıştı</dt><dd>{$wrxtState.positive_count}</dd></dl>
+                        <dl class="pairs pairs--justified"><dt>Çalışmadı</dt><dd>{$wrxtState.negative_count}</dd></dl>
+                        <dl class="pairs pairs--justified"><dt>Toplam oy</dt><dd>{$wrxtState.vote_count}</dd></dl>
+                        <dl class="pairs pairs--justified">
+                            <dt>Güncellik durumu</dt>
+                            <dd>
+                                <xf:if is="$wrxtDisplayStatus == 'current'"><span class="label label--green">Güncel</span>
+                                <xf:elseif is="$wrxtDisplayStatus == 'likely_current'" /><span class="label label--olive">Muhtemelen güncel</span>
+                                <xf:elseif is="$wrxtDisplayStatus == 'mixed'" /><span class="label label--yellow">Kararsız</span>
+                                <xf:elseif is="$wrxtDisplayStatus == 'questionable'" /><span class="label label--orange">Güncelliği şüpheli</span>
+                                <xf:elseif is="$wrxtDisplayStatus == 'not_working'" /><span class="label label--red">Artık çalışmıyor</span>
+                                <xf:elseif is="$wrxtDisplayStatus == 'revalidating'" /><span class="label label--blue">Yeniden doğrulanıyor</span>
+                                <xf:else /><span class="label">Doğrulanmamış</span></xf:if>
+                            </dd>
+                        </dl>
+                        <xf:if is="$wrxtState.last_verified_date">
+                            <dl class="pairs pairs--justified"><dt>Son topluluk doğrulaması</dt><dd><xf:date time="$wrxtState.last_verified_date" /></dd></dl>
+                        </xf:if>
+                        <xf:if is="$wrxtState.moderator_status">
+                            <div class="formRow-explain">Gösterilen durum moderatör doğrulaması içeriyor.</div>
+                        </xf:if>
+                    <xf:else />
+                        <div class="formRow-explain">Bu güncelleme döngüsü henüz doğrulanmadı.</div>
+                    </xf:if>
+                    <xf:if is="$thread.hasWrxtFreshnessOwnerClaim()">
+                        <div class="blockMessage blockMessage--important">Konu sahibi bu çözümün hâlâ geçerli olduğunu bildirdi. Bu bildirim topluluk oylarının yerini almaz.</div>
+                    </xf:if>
+                </div>
+                <xf:if is="$wrxtReasonSummary">
+                    <div class="block-row">
+                        <strong>Çalışmama nedenleri</strong>
+                        <xf:foreach loop="$wrxtReasonSummary" key="$wrxtReason" value="$wrxtReasonTotal">
+                            <dl class="pairs pairs--justified">
+                                <dt>
+                                    <xf:if is="$wrxtReason == 'outdated_version'">Yeni sürümde çalışmıyor
+                                    <xf:elseif is="$wrxtReason == 'dead_links'" />Dosya veya bağlantılar çalışmıyor
+                                    <xf:elseif is="$wrxtReason == 'method_invalid'" />Yöntem artık geçerli değil
+                                    <xf:elseif is="$wrxtReason == 'incomplete'" />Çözüm eksik
+                                    <xf:elseif is="$wrxtReason == 'did_not_work'" />Sistemde çalışmadı
+                                    <xf:else />Diğer</xf:if>
+                                </dt>
+                                <dd>{$wrxtReasonTotal|number}</dd>
+                            </dl>
+                        </xf:foreach>
+                    </div>
+                </xf:if>
+                <xf:if is="$wrxtVersionSummary">
+                    <div class="block-row">
+                        <strong>Sürüm bazlı sonuçlar</strong>
+                        <xf:foreach loop="$wrxtVersionSummary" value="$wrxtVersionRow">
+                            <dl class="pairs pairs--justified">
+                                <dt>{$wrxtVersionRow.version}</dt>
+                                <dd>{$wrxtVersionRow.positive_count} çalıştı / {$wrxtVersionRow.negative_count} çalışmadı</dd>
+                            </dl>
+                        </xf:foreach>
+                    </div>
+                </xf:if>
+                <xf:if is="$thread.canWrxtFreshnessOwnerClaim()">
+                    <div class="block-row">
+                        <xf:form action="{{ link('threads/freshness-owner-claim', $thread) }}" ajax="true">
+                            <xf:hiddenval name="claimed">{{ $thread.hasWrxtFreshnessOwnerClaim() ? 0 : 1 }}</xf:hiddenval>
+                            <xf:submitrow submit="{{ $thread.hasWrxtFreshnessOwnerClaim() ? 'Konu sahibi doğrulamasını kaldır' : 'Konu sahibi olarak hâlâ geçerli bildir' }}" />
+                        </xf:form>
+                    </div>
+                </xf:if>
+                <xf:if is="$thread.canWrxtFreshnessVote()">
+                    <div class="block-row">
+                        <xf:form action="{{ link('threads/freshness-vote', $thread) }}" ajax="true">
+                            <xf:if is="$wrxtVersions">
+                                <xf:selectrow name="version" value="{{ $wrxtVoteEntity ? $wrxtVoteEntity.version : '' }}" label="Denediğiniz sürüm">
+                                    <xf:option value="">Sürüm seçin</xf:option>
+                                    <xf:foreach loop="$wrxtVersions" value="$wrxtVersion"><xf:option value="{$wrxtVersion}">{$wrxtVersion}</xf:option></xf:foreach>
+                                </xf:selectrow>
+                            <xf:else />
+                                <xf:textboxrow name="version" value="{{ $wrxtVoteEntity ? $wrxtVoteEntity.version : '' }}" maxlength="100" label="Denediğiniz sürüm" />
+                            </xf:if>
+                            <xf:selectrow name="reason" value="{{ $wrxtVoteEntity ? $wrxtVoteEntity.reason : '' }}" label="Çalışmama nedeni">
+                                <xf:option value="">Seçmek istemiyorum</xf:option>
+                                <xf:option value="outdated_version">Yeni sürümde çalışmıyor</xf:option>
+                                <xf:option value="dead_links">Dosya veya bağlantılar çalışmıyor</xf:option>
+                                <xf:option value="method_invalid">Yöntem artık geçerli değil</xf:option>
+                                <xf:option value="incomplete">Çözüm eksik</xf:option>
+                                <xf:option value="did_not_work">Benim sistemimde çalışmadı</xf:option>
+                                <xf:option value="other">Diğer</xf:option>
+                            </xf:selectrow>
+                            <xf:textboxrow name="message" value="{{ $wrxtVoteEntity ? $wrxtVoteEntity.message : '' }}" maxlength="500" label="Kısa açıklama" />
+                            <xf:numberboxrow name="alternative_thread_id" value="{{ $wrxtVoteEntity ? $wrxtVoteEntity.alternative_thread_id : 0 }}" min="0" label="Daha güncel konu ID (isteğe bağlı)" explain="Yalnızca çalışmadı oyunda kullanılır. 0 bırakırsanız öneri gönderilmez." />
+                            <div class="formSubmitRow"><div class="formSubmitRow-main"><div class="formSubmitRow-bar"></div><div class="formSubmitRow-controls">
+                                <xf:button type="submit" name="vote" value="1" class="button--primary">Denedim, çalıştı</xf:button>
+                                <xf:button type="submit" name="vote" value="-1">Denedim, çalışmadı</xf:button>
+                            </div></div></div>
+                            <xf:if is="$wrxtVisitorVote == 1"><div class="formRow-explain">Mevcut oyunuz: çalıştı</div>
+                            <xf:elseif is="$wrxtVisitorVote == -1" /><div class="formRow-explain">Mevcut oyunuz: çalışmadı</div></xf:if>
+                        </xf:form>
+                    </div>
+                <xf:elseif is="$wrxtVisitorVote" />
+                    <div class="block-row formRow-explain">Bu doğrulama döngüsünde oyunuzu kullandınız ve oy değiştirme yetkiniz yok.</div>
+                <xf:else />
+                    <div class="block-row formRow-explain">Bu konu için oy kullanma şartlarını karşılamıyorsunuz.</div>
+                </xf:if>
+            </div>
+        </div>
+    </div>
+</xf:if>
+$0]]></replace>
+  </modification>
+</template_modifications>
