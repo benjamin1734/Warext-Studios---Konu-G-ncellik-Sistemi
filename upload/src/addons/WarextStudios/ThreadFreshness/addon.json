@@ -8,6 +8,7 @@
     "faq_url": "",
     "support_url": "",
     "extra_urls": [],
+    "options": "thread-freshness/settings",
     "require": {
         "XF": [
             2030070,
